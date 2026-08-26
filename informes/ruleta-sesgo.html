@@ -1,0 +1,129 @@
+<title>Azarium - Deteccion de sesgo de rueda</title><style>/* Azarium - identidad visual del informe.
+   Neutros de papel tecnico con sesgo azul; acento azul acero forense;
+   rojo ladrillo reservado para lo que cae fuera de banda. */
+:root{
+  --papel:#FBFAF8; --superficie:#F2F0EB; --hundido:#E8E5DE;
+  --tinta:#191920; --tinta-suave:#63636F; --tinta-tenue:#8C8C97;
+  --linea:#DCD8D0; --linea-fuerte:#C3BEB4;
+  --acento:#3A5A8C; --acento-suave:#6B87B4;
+  --alerta:#B23A28; --ok:#2E7057; --banda:#E4E7EE;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","Consolas","DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --papel:#131318; --superficie:#1C1C23; --hundido:#24242D;
+    --tinta:#EAE8E4; --tinta-suave:#9E9EAA; --tinta-tenue:#75757F;
+    --linea:#2E2E38; --linea-fuerte:#3E3E4A;
+    --acento:#89A9D6; --acento-suave:#5E7CA8;
+    --alerta:#DE7458; --ok:#5CB88E; --banda:#232936;
+  }
+}
+:root[data-theme="dark"]{
+  --papel:#131318; --superficie:#1C1C23; --hundido:#24242D;
+  --tinta:#EAE8E4; --tinta-suave:#9E9EAA; --tinta-tenue:#75757F;
+  --linea:#2E2E38; --linea-fuerte:#3E3E4A;
+  --acento:#89A9D6; --acento-suave:#5E7CA8;
+  --alerta:#DE7458; --ok:#5CB88E; --banda:#232936;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);
+  font:400 16.5px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:74ch;margin:0 auto;padding:56px 24px 96px;
+  display:flex;flex-direction:column;gap:0}
+
+/* --- cabecera --- */
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--acento);margin:0 0 18px}
+h1{font:400 clamp(2.1rem,5vw,3rem)/1.1 var(--serif);margin:0 0 10px;
+  letter-spacing:-.015em;text-wrap:balance}
+.sub{color:var(--tinta-suave);margin:0 0 8px;font-size:1.02rem;max-width:60ch}
+
+/* --- jerarquia --- */
+h2{font:400 1.55rem/1.25 var(--serif);margin:64px 0 4px;letter-spacing:-.01em;
+  text-wrap:balance}
+h2::before{content:"";display:block;width:38px;height:2px;background:var(--acento);
+  margin-bottom:20px}
+h3{font:600 11.5px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tinta-suave);margin:34px 0 6px}
+p{margin:13px 0;max-width:66ch}
+small{font-size:.86em;color:var(--tinta-suave)}
+em{font-style:italic;color:var(--tinta-suave)}
+
+/* --- ficha de veredicto: la conclusion antes del detalle --- */
+.veredicto{background:var(--superficie);border:1px solid var(--linea);
+  border-radius:2px;padding:26px 28px;margin:28px 0;
+  display:flex;flex-direction:column;gap:10px}
+.veredicto .cifra{font:400 clamp(2.4rem,7vw,3.6rem)/1 var(--serif);
+  color:var(--alerta);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.veredicto .que{font:600 11px/1.4 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tinta-suave)}
+.veredicto p{margin:0;max-width:none}
+
+/* --- medidor: ubica cada juego sobre el eje de perdida --- */
+.medidor{display:flex;flex-direction:column;gap:14px;margin:26px 0}
+.medidor .fila{display:grid;grid-template-columns:minmax(90px,1fr) 3fr auto;
+  gap:14px;align-items:center}
+.medidor .nom{font-size:.88rem;color:var(--tinta-suave)}
+.medidor .pista{position:relative;height:9px;background:var(--hundido);
+  border-radius:1px;overflow:hidden}
+.medidor .relleno{position:absolute;inset:0 auto 0 0;background:var(--alerta);
+  opacity:.82}
+.medidor .val{font:600 .85rem/1 var(--mono);color:var(--alerta);
+  font-variant-numeric:tabular-nums;min-width:5.5ch;text-align:right}
+
+/* --- destacado --- */
+.destacado{border-left:2px solid var(--acento);padding:4px 0 4px 20px;margin:26px 0;
+  color:var(--tinta)}
+.destacado strong{color:var(--acento);font-weight:600}
+
+/* --- tablas: el vernaculo del tema es la pizarra monoespaciada --- */
+.tabla-wrap{overflow-x:auto;margin:18px 0;border-block:1px solid var(--linea)}
+table{border-collapse:collapse;width:100%;font:400 .88rem/1.5 var(--mono);
+  font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;
+  font-family:var(--sans);min-width:14ch}
+th{font:600 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tinta-tenue);border-bottom:1px solid var(--linea-fuerte);
+  padding-top:12px;padding-bottom:10px}
+tbody tr{border-bottom:1px solid var(--linea)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--superficie)}
+.mal{color:var(--alerta);font-weight:600}
+.bien{color:var(--ok);font-weight:600}
+code{font:.88em var(--mono);background:var(--superficie);padding:2px 6px;
+  border-radius:2px;color:var(--acento)}
+pre{font:.85rem/1.6 var(--mono);background:var(--superficie);padding:16px 18px;
+  border-radius:2px;overflow-x:auto;border:1px solid var(--linea);
+  white-space:pre-wrap;color:var(--tinta)}
+
+/* --- graficos --- */
+svg{width:100%;height:auto;margin:16px 0 4px;display:block}
+.panel{fill:var(--superficie);stroke:var(--linea)}
+.banda{fill:var(--banda)}
+.barra{fill:var(--acento-suave);stroke:none}
+.barra-fuera{fill:var(--alerta);stroke:var(--alerta)}
+.barra-gana{fill:var(--ok)}
+.ref{stroke:var(--acento);stroke-width:1.5;stroke-dasharray:4 3}
+text{fill:var(--tinta-suave);font-family:var(--mono)}
+.lbl{font-size:10.5px}
+.nota{font-size:10.5px;font-family:var(--sans);font-style:italic;fill:var(--tinta-tenue)}
+.titulo{font-size:12px;font-weight:600;fill:var(--tinta);font-family:var(--sans)}
+
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--linea);
+  color:var(--tinta-tenue);font-size:.84rem;font-family:var(--mono);line-height:1.7}
+a{color:var(--acento)}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--acento);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:560px){
+  .wrap{padding:36px 16px 64px}
+  .medidor .fila{grid-template-columns:1fr 2fr auto;gap:10px}
+}
+</style><div class="wrap"><p class="eyebrow">Azarium</p><h1>Azarium - Deteccion de sesgo de rueda</h1><p class="sub">Europea (simple cero), mesa: sin identificar, 50,000 tiradas registradas</p><h2>El umbral que hay que superar</h2><p>Un pleno paga 35 a 1 sobre 37 casillas. Para que apostar a una casilla sea rentable, su probabilidad real tiene que superar <strong>1/36 = 2.778%</strong>, contra el 2.703% teorico. Es una diferencia relativa de apenas 2.8%.</p><div class="destacado"><strong>Cuanta observacion hace falta.</strong> Detectar ese sesgo minimo con 80% de potencia, corrigiendo por las 37 casillas que se testean a la vez, exige <strong>692,484 tiradas de la misma rueda</strong>: unas 17,312 horas de mesa continua, o 5.9 anios observando 8 horas por dia sin cambiar de mesa. Y eso solo para <em>saber</em> si el sesgo existe, antes de apostar un peso.</div><h2>Resultado del analisis</h2><svg viewBox="0 0 900 300" role="img" aria-label="Frecuencia por casilla (en orden fisico del disco)"><rect x="60.0" y="30.0" width="810.0" height="220.0" class="panel"/><text x="60.0" y="16.0" class="titulo" text-anchor="start">Frecuencia por casilla (en orden fisico del disco)</text><text x="16.0" y="140.0" class="lbl" text-anchor="middle" transform="rotate(-90 16.0 140.0)">veces que salio</text><rect x="60.0" y="115.3" width="810.0" height="13.7" class="banda"/><rect x="62.4" y="122.1" width="17.1" height="127.9" class="barra"><title>0: 1352 veces</title></rect><rect x="84.3" y="123.7" width="17.1" height="126.3" class="barra"><title>1: 1335 veces</title></rect><rect x="106.2" y="119.4" width="17.1" height="130.6" class="barra"><title>2: 1381 veces</title></rect><rect x="128.1" y="129.8" width="17.1" height="120.2" class="barra-fuera"><title>3: 1271 veces</title></rect><rect x="150.0" y="130.1" width="17.1" height="119.9" class="barra-fuera"><title>4: 1268 veces</title></rect><rect x="171.9" y="125.3" width="17.1" height="124.7" class="barra"><title>5: 1319 veces</title></rect><rect x="193.8" y="132.7" width="17.1" height="117.3" class="barra-fuera"><title>6: 1240 veces</title></rect><rect x="215.7" y="58.9" width="17.1" height="191.1" class="barra-fuera"><title>7: 2021 veces</title></rect><rect x="237.5" y="53.6" width="17.1" height="196.4" class="barra-fuera"><title>8: 2077 veces</title></rect><rect x="259.4" y="58.0" width="17.1" height="192.0" class="barra-fuera"><title>9: 2030 veces</title></rect><rect x="281.3" y="131.1" width="17.1" height="118.9" class="barra-fuera"><title>10: 1257 veces</title></rect><rect x="303.2" y="130.4" width="17.1" height="119.6" class="barra-fuera"><title>11: 1265 veces</title></rect><rect x="325.1" y="128.9" width="17.1" height="121.1" class="barra"><title>12: 1280 veces</title></rect><rect x="347.0" y="127.2" width="17.1" height="122.8" class="barra"><title>13: 1298 veces</title></rect><rect x="368.9" y="129.7" width="17.1" height="120.3" class="barra-fuera"><title>14: 1272 veces</title></rect><rect x="390.8" y="126.5" width="17.1" height="123.5" class="barra"><title>15: 1306 veces</title></rect><rect x="412.7" y="129.3" width="17.1" height="120.7" class="barra-fuera"><title>16: 1276 veces</title></rect><rect x="434.6" y="129.7" width="17.1" height="120.3" class="barra-fuera"><title>17: 1272 veces</title></rect><rect x="456.5" y="132.1" width="17.1" height="117.9" class="barra-fuera"><title>18: 1247 veces</title></rect><rect x="478.4" y="126.0" width="17.1" height="124.0" class="barra"><title>19: 1311 veces</title></rect><rect x="500.2" y="124.2" width="17.1" height="125.8" class="barra"><title>20: 1330 veces</title></rect><rect x="522.1" y="129.8" width="17.1" height="120.2" class="barra-fuera"><title>21: 1271 veces</title></rect><rect x="544.0" y="125.5" width="17.1" height="124.5" class="barra"><title>22: 1316 veces</title></rect><rect x="565.9" y="127.6" width="17.1" height="122.4" class="barra"><title>23: 1294 veces</title></rect><rect x="587.8" y="127.0" width="17.1" height="123.0" class="barra"><title>24: 1301 veces</title></rect><rect x="609.7" y="126.9" width="17.1" height="123.1" class="barra"><title>25: 1302 veces</title></rect><rect x="631.6" y="128.0" width="17.1" height="122.0" class="barra"><title>26: 1290 veces</title></rect><rect x="653.5" y="130.1" width="17.1" height="119.9" class="barra-fuera"><title>27: 1268 veces</title></rect><rect x="675.4" y="133.7" width="17.1" height="116.3" class="barra-fuera"><title>28: 1230 veces</title></rect><rect x="697.3" y="128.6" width="17.1" height="121.4" class="barra"><title>29: 1284 veces</title></rect><rect x="719.2" y="131.7" width="17.1" height="118.3" class="barra-fuera"><title>30: 1251 veces</title></rect><rect x="741.1" y="127.4" width="17.1" height="122.6" class="barra"><title>31: 1296 veces</title></rect><rect x="762.9" y="126.9" width="17.1" height="123.1" class="barra"><title>32: 1302 veces</title></rect><rect x="784.8" y="126.9" width="17.1" height="123.1" class="barra"><title>33: 1302 veces</title></rect><rect x="806.7" y="125.0" width="17.1" height="125.0" class="barra"><title>34: 1322 veces</title></rect><rect x="828.6" y="130.9" width="17.1" height="119.1" class="barra-fuera"><title>35: 1259 veces</title></rect><rect x="850.5" y="126.7" width="17.1" height="123.3" class="barra"><title>36: 1304 veces</title></rect><line x1="60.0" y1="122.2" x2="870.0" y2="122.2" class="ref"/><text x="874.0" y="126.2" class="lbl" text-anchor="start">esperado 1351</text><text x="70.9" y="266.0" class="lbl" text-anchor="middle">0</text><text x="92.8" y="266.0" class="lbl" text-anchor="middle">1</text><text x="114.7" y="266.0" class="lbl" text-anchor="middle">2</text><text x="136.6" y="266.0" class="lbl" text-anchor="middle">3</text><text x="158.5" y="266.0" class="lbl" text-anchor="middle">4</text><text x="180.4" y="266.0" class="lbl" text-anchor="middle">5</text><text x="202.3" y="266.0" class="lbl" text-anchor="middle">6</text><text x="224.2" y="266.0" class="lbl" text-anchor="middle">7</text><text x="246.1" y="266.0" class="lbl" text-anchor="middle">8</text><text x="268.0" y="266.0" class="lbl" text-anchor="middle">9</text><text x="289.9" y="266.0" class="lbl" text-anchor="middle">10</text><text x="311.8" y="266.0" class="lbl" text-anchor="middle">11</text><text x="333.6" y="266.0" class="lbl" text-anchor="middle">12</text><text x="355.5" y="266.0" class="lbl" text-anchor="middle">13</text><text x="377.4" y="266.0" class="lbl" text-anchor="middle">14</text><text x="399.3" y="266.0" class="lbl" text-anchor="middle">15</text><text x="421.2" y="266.0" class="lbl" text-anchor="middle">16</text><text x="443.1" y="266.0" class="lbl" text-anchor="middle">17</text><text x="465.0" y="266.0" class="lbl" text-anchor="middle">18</text><text x="486.9" y="266.0" class="lbl" text-anchor="middle">19</text><text x="508.8" y="266.0" class="lbl" text-anchor="middle">20</text><text x="530.7" y="266.0" class="lbl" text-anchor="middle">21</text><text x="552.6" y="266.0" class="lbl" text-anchor="middle">22</text><text x="574.5" y="266.0" class="lbl" text-anchor="middle">23</text><text x="596.4" y="266.0" class="lbl" text-anchor="middle">24</text><text x="618.2" y="266.0" class="lbl" text-anchor="middle">25</text><text x="640.1" y="266.0" class="lbl" text-anchor="middle">26</text><text x="662.0" y="266.0" class="lbl" text-anchor="middle">27</text><text x="683.9" y="266.0" class="lbl" text-anchor="middle">28</text><text x="705.8" y="266.0" class="lbl" text-anchor="middle">29</text><text x="727.7" y="266.0" class="lbl" text-anchor="middle">30</text><text x="749.6" y="266.0" class="lbl" text-anchor="middle">31</text><text x="771.5" y="266.0" class="lbl" text-anchor="middle">32</text><text x="793.4" y="266.0" class="lbl" text-anchor="middle">33</text><text x="815.3" y="266.0" class="lbl" text-anchor="middle">34</text><text x="837.2" y="266.0" class="lbl" text-anchor="middle">35</text><text x="859.1" y="266.0" class="lbl" text-anchor="middle">36</text><text x="60.0" y="284.0" class="nota" text-anchor="start">la franja clara es el margen de +-2 sigma que el azar puro produce</text></svg><p><small>El eje horizontal sigue el orden fisico de la rueda, no el numerico: un defecto mecanico afecta a casillas vecinas en el disco.</small></p><p><strong>Chi-cuadrado de la rueda:</strong> chi2 = 1181.58 (gl 36), p = 9.977e-225</p><p><pre style='white-space:pre-wrap'>Sesgo detectado con 50000 tiradas: el efecto es lo bastante grande como para verse muy por debajo de las ~692484 tiradas que exigiria el sesgo marginal.
+Chi-cuadrado de la rueda: p=9.977e-225 -> Se rechaza la uniformidad (p < 0.05)
+Casilla 25: 4.042% observado (IC95 3.873-4.218%), ventaja estimada del jugador +45.51%
+Casilla 17: 4.154% observado (IC95 3.983-4.332%), ventaja estimada del jugador +49.54%
+Casilla 34: 4.060% observado (IC95 3.891-4.237%), ventaja estimada del jugador +46.16%
+Sectores fisicos con exceso significativo (centro): 4, 21, 2, 25, 17</pre></p><h3>Casillas con sesgo explotable</h3><div class="tabla-wrap"><table><thead><tr><th>Casilla</th><th>Salio</th><th>Esperado</th><th>Frecuencia</th><th>IC 95%</th><th>Ventaja del jugador</th></tr></thead><tbody><tr><td>25</td><td>2021</td><td>1351</td><td>4.042%</td><td>3.873 - 4.218%</td><td><span class="bien">+45.51%</span></td></tr><tr><td>17</td><td>2077</td><td>1351</td><td>4.154%</td><td>3.983 - 4.332%</td><td><span class="bien">+49.54%</span></td></tr><tr><td>34</td><td>2030</td><td>1351</td><td>4.060%</td><td>3.891 - 4.237%</td><td><span class="bien">+46.16%</span></td></tr></tbody></table></div><h3>Sectores fisicos con exceso significativo</h3><div class="tabla-wrap"><table><thead><tr><th>Centro</th><th>Casillas del sector</th><th>Observado</th><th>Esperado</th><th>z</th></tr></thead><tbody><tr><td>4</td><td>32, 15, 19, 4, 21, 2, 25</td><td>9835</td><td>9459</td><td>+4.29</td></tr><tr><td>21</td><td>15, 19, 4, 21, 2, 25, 17</td><td>10577</td><td>9459</td><td>+12.76</td></tr><tr><td>2</td><td>19, 4, 21, 2, 25, 17, 34</td><td>11226</td><td>9459</td><td>+20.17</td></tr><tr><td>25</td><td>4, 21, 2, 25, 17, 34, 6</td><td>11212</td><td>9459</td><td>+20.01</td></tr><tr><td>17</td><td>21, 2, 25, 17, 34, 6, 27</td><td>11209</td><td>9459</td><td>+19.98</td></tr><tr><td>34</td><td>2, 25, 17, 34, 6, 27, 13</td><td>11170</td><td>9459</td><td>+19.53</td></tr><tr><td>6</td><td>25, 17, 34, 6, 27, 13, 36</td><td>11228</td><td>9459</td><td>+20.19</td></tr><tr><td>27</td><td>17, 34, 6, 27, 13, 36, 11</td><td>10479</td><td>9459</td><td>+11.64</td></tr><tr><td>13</td><td>34, 6, 27, 13, 36, 11, 30</td><td>9708</td><td>9459</td><td>+2.84</td></tr></tbody></table></div><footer>Generado por Azarium el 2026-08-18. Todos los calculos son reproducibles con la semilla indicada en cada seccion.</footer></div>
