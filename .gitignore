@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Salidas de corridas: se regeneran con el CLI
+datos/*.csv
+!datos/_smoke.csv
