@@ -1,0 +1,2248 @@
+<title>Azarium</title>
+<style>
+/* ============================================================
+   Azarium - identidad: papel tecnico, azul acero forense,
+   monoespaciada tabular para todo dato. Rojo ladrillo solo
+   para lo que cae fuera de banda.
+   ============================================================ */
+:root{
+  --papel:#FBFAF8; --superficie:#F2F0EB; --hundido:#E8E5DE; --elevado:#FFFFFF;
+  --tinta:#191920; --tinta-suave:#63636F; --tinta-tenue:#8C8C97;
+  --linea:#DCD8D0; --linea-fuerte:#C3BEB4;
+  --acento:#3A5A8C; --acento-suave:#6B87B4; --acento-tenue:#E4E9F1;
+  --alerta:#B23A28; --ok:#2E7057; --aviso:#96690E; --banda:#E4E7EE;
+  --ruleta-rojo:#A8342A; --ruleta-negro:#26262C; --ruleta-verde:#1E6B4E;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","Consolas","DejaVu Sans Mono",monospace;
+  --r:3px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --papel:#131318; --superficie:#1C1C23; --hundido:#24242D; --elevado:#22222B;
+    --tinta:#EAE8E4; --tinta-suave:#9E9EAA; --tinta-tenue:#75757F;
+    --linea:#2E2E38; --linea-fuerte:#3E3E4A;
+    --acento:#89A9D6; --acento-suave:#5E7CA8; --acento-tenue:#212936;
+    --alerta:#DE7458; --ok:#5CB88E; --aviso:#D4A54A; --banda:#232936;
+    --ruleta-rojo:#B8443A; --ruleta-negro:#35353E; --ruleta-verde:#2A8060;
+  }
+}
+:root[data-theme="dark"]{
+  --papel:#131318; --superficie:#1C1C23; --hundido:#24242D; --elevado:#22222B;
+  --tinta:#EAE8E4; --tinta-suave:#9E9EAA; --tinta-tenue:#75757F;
+  --linea:#2E2E38; --linea-fuerte:#3E3E4A;
+  --acento:#89A9D6; --acento-suave:#5E7CA8; --acento-tenue:#212936;
+  --alerta:#DE7458; --ok:#5CB88E; --aviso:#D4A54A; --banda:#232936;
+  --ruleta-rojo:#B8443A; --ruleta-negro:#35353E; --ruleta-verde:#2A8060;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);
+  font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%}
+
+/* ---------- estructura ---------- */
+.app{max-width:940px;margin:0 auto;padding:0 16px 72px}
+header.top{padding:22px 0 0;display:flex;flex-direction:column;gap:3px}
+.marca{font:400 1.5rem/1 var(--serif);letter-spacing:-.01em}
+.marca b{font-weight:400;color:var(--acento)}
+.tagline{font:400 .82rem/1.4 var(--sans);color:var(--tinta-tenue);margin:0}
+
+nav.tabs{display:flex;gap:2px;margin:18px 0 0;border-bottom:1px solid var(--linea);
+  overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{appearance:none;background:none;border:none;cursor:pointer;
+  font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tinta-tenue);padding:13px 14px;border-bottom:2px solid transparent;
+  white-space:nowrap;margin-bottom:-1px}
+nav.tabs button:hover{color:var(--tinta-suave)}
+nav.tabs button[aria-selected="true"]{color:var(--acento);
+  border-bottom-color:var(--acento)}
+nav.tabs button:focus-visible{outline:2px solid var(--acento);outline-offset:-2px}
+
+section.panel{display:none;padding-top:26px}
+section.panel.activo{display:block}
+
+/* ---------- tipografia ---------- */
+h2{font:400 1.4rem/1.25 var(--serif);margin:34px 0 4px;letter-spacing:-.01em}
+h2:first-child{margin-top:0}
+h2::before{content:"";display:block;width:32px;height:2px;background:var(--acento);
+  margin-bottom:16px}
+h3{font:600 11px/1.3 var(--mono);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--tinta-suave);margin:26px 0 8px}
+p{margin:10px 0;max-width:68ch}
+p.nota{font-size:.86rem;color:var(--tinta-suave)}
+.intro{color:var(--tinta-suave);font-size:.95rem}
+strong{font-weight:600}
+em{font-style:italic;color:var(--tinta-suave)}
+
+/* ---------- controles ---------- */
+.controles{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:end;
+  background:var(--superficie);border:1px solid var(--linea);border-radius:var(--r);
+  padding:16px;margin:16px 0}
+.campo{display:flex;flex-direction:column;gap:5px;min-width:0}
+.campo label{font:600 9.5px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  color:var(--tinta-tenue)}
+.campo input,.campo select{font:400 .9rem var(--mono);padding:8px 10px;
+  background:var(--elevado);color:var(--tinta);border:1px solid var(--linea-fuerte);
+  border-radius:var(--r);min-width:0;width:100%}
+.campo.chico input,.campo.chico select{width:8.5rem}
+.campo input:focus,.campo select:focus{outline:2px solid var(--acento);outline-offset:-1px}
+button.accion{font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:11px 18px;background:var(--acento);color:#fff;border:1px solid var(--acento);
+  border-radius:var(--r);cursor:pointer}
+button.accion:hover{filter:brightness(1.1)}
+button.accion:disabled{opacity:.5;cursor:default}
+button.sec{background:none;color:var(--acento);border-color:var(--linea-fuerte)}
+button.sec:hover{background:var(--acento-tenue);filter:none}
+button.accion.peligro{background:var(--alerta);border-color:var(--alerta);color:#fff}
+button.accion.peligro:hover{filter:brightness(1.08)}
+button.accion:focus-visible,textarea:focus-visible{outline:2px solid var(--acento);
+  outline-offset:2px}
+textarea{width:100%;font:400 .85rem/1.5 var(--mono);padding:10px;background:var(--elevado);
+  color:var(--tinta);border:1px solid var(--linea-fuerte);border-radius:var(--r);
+  resize:vertical}
+
+/* ---------- mesa de ruleta ---------- */
+.mesa-wrap{overflow-x:auto;padding-bottom:6px;margin:14px 0}
+.mesa{display:grid;grid-template-columns:auto repeat(12,1fr);gap:2px;min-width:318px}
+.cel{appearance:none;border:none;cursor:pointer;border-radius:2px;color:#fff;
+  font:600 .8rem/1 var(--mono);padding:0;aspect-ratio:1/1;min-width:22px;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .06s ease}
+.cel:active{transform:scale(.9)}
+.cel.rojo{background:var(--ruleta-rojo)}
+.cel.negro{background:var(--ruleta-negro)}
+.cel.verde{background:var(--ruleta-verde)}
+/* Columna del cero: abarca las tres filas y se parte en mitades iguales,
+   como en la mesa real. La linea divisoria usa el color del fondo. */
+.ceros{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;
+  gap:0;border-radius:2px;overflow:hidden;min-width:26px}
+.ceros .cel{flex:1 1 0;aspect-ratio:auto;border-radius:0;height:auto;width:100%}
+.ceros .cel + .cel{border-top:2px solid var(--papel)}
+.cel:focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+.cel .marcador{position:absolute}
+
+/* ---------- tiras de tiradas ---------- */
+.tiradas{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0;min-height:30px}
+.ficha{font:600 .78rem/1 var(--mono);color:#fff;width:28px;height:28px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.ficha.rojo{background:var(--ruleta-rojo)}
+.ficha.negro{background:var(--ruleta-negro)}
+.ficha.verde{background:var(--ruleta-verde)}
+.vacio{color:var(--tinta-tenue);font-size:.86rem;font-style:italic}
+
+/* ---------- ficha y tarjetas de mesa ---------- */
+.ficha-mesa{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:-6px 0 14px}
+.ficha-mesa .et-rueda{font:600 9.5px/1 var(--mono);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--acento);border:1px solid var(--acento);
+  padding:5px 9px;border-radius:99px}
+.ficha-mesa .desc{color:var(--tinta-suave);font-size:.88rem}
+
+.tarjeta-mesa{border:1px solid var(--linea);border-radius:var(--r);padding:14px 16px;
+  margin:10px 0;background:var(--superficie);display:flex;flex-direction:column;gap:6px}
+.tarjeta-mesa.activa{border-color:var(--acento);border-left-width:3px}
+.tm-cab{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tm-nombre{font:400 1.08rem/1.3 var(--serif)}
+.tm-badge{font:600 9px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  color:#fff;background:var(--acento);padding:4px 8px;border-radius:99px}
+.tm-meta{font:400 .8rem/1.4 var(--mono);color:var(--tinta-tenue)}
+.tm-desc{font-size:.89rem;color:var(--tinta-suave)}
+.tm-acciones{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tm-acciones .chip{cursor:pointer}
+.tm-acciones .chip.peligro{background:var(--alerta);color:#fff;border-color:var(--alerta)}
+
+/* ---------- medidor de evidencia ---------- */
+.evidencia{background:var(--superficie);border:1px solid var(--linea);
+  border-radius:var(--r);padding:16px 18px;margin:16px 0;
+  display:flex;flex-direction:column;gap:9px}
+.evidencia .cab{display:flex;justify-content:space-between;align-items:baseline;
+  gap:12px;flex-wrap:wrap}
+.evidencia .tit{font:600 9.5px/1 var(--mono);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--tinta-tenue)}
+.evidencia .n{font:400 1.6rem/1 var(--serif);font-variant-numeric:tabular-nums}
+.pista{height:8px;background:var(--hundido);border-radius:1px;overflow:hidden;
+  position:relative}
+.pista .relleno{position:absolute;inset:0 auto 0 0;background:var(--acento);
+  transition:width .3s ease}
+.pista .relleno.lleno{background:var(--ok)}
+.hitos{display:flex;gap:0;margin:4px 0 0;font:400 .78rem/1.3 var(--mono);
+  border-top:1px solid var(--linea);padding-top:9px;flex-wrap:wrap}
+.hitos .h{flex:1 1 5.5rem;display:flex;flex-direction:column;gap:2px;padding-right:8px}
+.hitos .h b{font-weight:600;color:var(--tinta);font-variant-numeric:tabular-nums}
+.hitos .h span{color:var(--tinta-tenue);font-size:.72rem}
+.hitos .h.aqui b{color:var(--acento)}
+.hitos .h.aqui span{color:var(--acento-suave)}
+
+/* ---------- veredicto ---------- */
+.veredicto{border-left:3px solid var(--acento);background:var(--superficie);
+  padding:14px 16px;margin:16px 0;border-radius:0 var(--r) var(--r) 0}
+.veredicto.malo{border-left-color:var(--alerta)}
+.veredicto.bueno{border-left-color:var(--ok)}
+.veredicto .et{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--tinta-tenue);display:block;margin-bottom:6px}
+.veredicto p{margin:6px 0 0;max-width:none;font-size:.93rem}
+.veredicto p:first-of-type{margin-top:0}
+
+/* ---------- tablas ---------- */
+.tabla-wrap{overflow-x:auto;margin:14px 0;border-block:1px solid var(--linea)}
+table{border-collapse:collapse;width:100%;font:400 .84rem/1.5 var(--mono);
+  font-variant-numeric:tabular-nums}
+th,td{padding:8px 11px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-family:var(--sans)}
+th{font:600 9.5px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--tinta-tenue);border-bottom:1px solid var(--linea-fuerte)}
+tbody tr{border-bottom:1px solid var(--linea)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--superficie)}
+.mal{color:var(--alerta);font-weight:600}
+.bien{color:var(--ok);font-weight:600}
+.avi{color:var(--aviso);font-weight:600}
+.tenue{color:var(--tinta-tenue)}
+
+/* ---------- graficos ---------- */
+svg.g{width:100%;height:auto;display:block;margin:12px 0 4px}
+.panelfondo{fill:var(--superficie);stroke:var(--linea)}
+.banda{fill:var(--banda)}
+.barra{fill:var(--acento-suave)}
+.barra-fuera{fill:var(--alerta)}
+.barra-gana{fill:var(--ok)}
+.ref{stroke:var(--acento);stroke-width:1.5;stroke-dasharray:4 3}
+svg.g text{fill:var(--tinta-suave);font-family:var(--mono);font-size:10px}
+svg.g text.tit{fill:var(--tinta);font-family:var(--sans);font-size:11.5px;font-weight:600}
+svg.g text.nota{fill:var(--tinta-tenue);font-family:var(--sans);font-size:10px;
+  font-style:italic}
+
+/* ---------- varios ---------- */
+.fila-botones{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{font:600 10px/1 var(--mono);letter-spacing:.06em;padding:7px 11px;
+  border:1px solid var(--linea-fuerte);border-radius:99px;background:var(--elevado);
+  color:var(--tinta-suave);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--acento);color:#fff;border-color:var(--acento)}
+.progreso{font:400 .84rem var(--mono);color:var(--tinta-suave);margin:8px 0}
+details{margin:14px 0;border:1px solid var(--linea);border-radius:var(--r);
+  background:var(--superficie)}
+summary{cursor:pointer;padding:12px 15px;font:600 10.5px/1 var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-suave)}
+details[open] summary{border-bottom:1px solid var(--linea)}
+details .cuerpo{padding:4px 15px 15px}
+code{font:.87em var(--mono);background:var(--hundido);padding:1px 5px;border-radius:2px}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--linea);
+  color:var(--tinta-tenue);font:.8rem/1.7 var(--mono)}
+.aviso-caja{border:1px solid var(--linea-fuerte);border-left:3px solid var(--aviso);
+  padding:12px 15px;margin:14px 0;border-radius:0 var(--r) var(--r) 0;
+  font-size:.9rem;background:var(--superficie)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:600px){
+  .app{padding:0 12px 60px}
+  .campo.chico input,.campo.chico select{width:100%}
+  .campo{flex:1 1 8rem}
+  .controles{padding:13px}
+  h2{font-size:1.25rem}
+  .cel{min-width:22px;font-size:.72rem}
+}
+</style>
+
+<div class="app">
+<header class="top">
+  <div class="marca">Azar<b>ium</b></div>
+  <p class="tagline">Laboratorio estadístico de juegos de azar</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tab-mesa" aria-controls="p-mesa" aria-selected="true">Mesa en vivo</button>
+  <button role="tab" id="tab-mesas" aria-controls="p-mesas" aria-selected="false">Mis mesas</button>
+  <button role="tab" id="tab-sim" aria-controls="p-sim" aria-selected="false">Simulador</button>
+  <button role="tab" id="tab-sorteos" aria-controls="p-sorteos" aria-selected="false">Sorteos</button>
+  <button role="tab" id="tab-ref" aria-controls="p-ref" aria-selected="false">Referencia</button>
+</nav>
+
+<!-- ================= MESA EN VIVO ================= -->
+<section class="panel activo" id="p-mesa" role="tabpanel" aria-labelledby="tab-mesa">
+  <h2>Registro de mesa</h2>
+  <p class="intro">Cargá cada número que sale tocando la mesa. Azarium recalcula el
+  análisis con cada tirada y te dice, sin adornos, si lo que estás viendo es una rueda
+  defectuosa o el ruido normal del azar.</p>
+
+  <div class="controles">
+    <div class="campo" style="flex:1 1 16rem">
+      <label for="mesa-sel">Mesa que estás registrando</label>
+      <select id="mesa-sel"></select>
+    </div>
+    <button class="accion sec" id="btn-ir-config">Configurar mesas</button>
+  </div>
+  <div id="mesa-ficha"></div>
+
+  <!-- Almacenamiento sincronizado: el texto de este elemento es el registro real.
+       Queda oculto; las fichas que se ven abajo se derivan de acá. -->
+  <div id="zona-doc" hidden aria-hidden="true">
+    <ul artifact-sync id="doc"><li id="doc-tiradas" data-rueda="europea" data-nombre="Mesa 1"></li></ul>
+  </div>
+
+  <div class="mesa-wrap"><div class="mesa" id="mesa"></div></div>
+
+  <div class="fila-botones">
+    <button class="accion sec" id="btn-deshacer">Deshacer</button>
+    <button class="accion sec" id="btn-borrar">Borrar todo</button>
+    <button class="accion sec" id="btn-exportar">Exportar</button>
+    <button class="accion sec" id="btn-importar">Importar</button>
+  </div>
+
+  <h3>Últimas tiradas <span class="tenue" id="conteo-tiradas"></span></h3>
+  <div class="tiradas" id="tiradas"><span class="vacio">Todavía no cargaste ninguna tirada.</span></div>
+
+  <div class="evidencia">
+    <div class="cab">
+      <span class="tit">Qué sesgo podés detectar hoy <span id="ev-n" class="tenue"></span></span>
+      <span class="n" id="ev-cifra">—</span>
+    </div>
+    <div class="pista"><span class="relleno" id="ev-barra" style="width:0%"></span></div>
+    <p class="nota" id="ev-texto" style="margin:0"></p>
+    <div id="ev-hitos"></div>
+  </div>
+
+  <div id="mesa-veredicto"></div>
+  <div id="mesa-grafico"></div>
+  <div id="mesa-tablas"></div>
+
+  <details>
+    <summary>Importar o exportar tiradas</summary>
+    <div class="cuerpo">
+      <p class="nota">Pegá una lista de números separados por comas, espacios o saltos de
+      línea para importarlos. El botón Exportar copia acá las tiradas de la sesión actual
+      para que las pases a otro dispositivo.</p>
+      <textarea id="io-texto" rows="4" placeholder="17, 34, 6, 0, 22, 5..."></textarea>
+      <div class="fila-botones">
+        <button class="accion" id="btn-io-cargar">Cargar estas tiradas</button>
+        <button class="accion sec" id="btn-io-descargar">Descargar CSV</button>
+      </div>
+      <p class="nota" id="io-estado"></p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= MIS MESAS ================= -->
+<section class="panel" id="p-mesas" role="tabpanel" aria-labelledby="tab-mesas">
+  <h2>Mis mesas</h2>
+  <p class="intro">Cada mesa física es un registro aparte, con su tipo de rueda. Definila
+  una vez acá y después, en Mesa en vivo, solo la elegís de la lista.</p>
+
+  <div class="controles" id="form-mesa">
+    <div class="campo" style="flex:1 1 15rem">
+      <label for="f-nombre">Nombre</label>
+      <input id="f-nombre" type="text" placeholder="Mesa del bingo de San Martín" autocomplete="off">
+    </div>
+    <div class="campo chico">
+      <label for="f-rueda">Rueda</label>
+      <select id="f-rueda">
+        <option value="europea">Europea (un cero)</option>
+        <option value="francesa">Francesa (partage)</option>
+        <option value="americana">Americana (doble cero)</option>
+      </select>
+    </div>
+    <div class="campo" style="flex:1 1 100%">
+      <label for="f-desc">Descripción (opcional)</label>
+      <input id="f-desc" type="text" placeholder="La del fondo, cerca de la barra. Crupier cambia a las 2." autocomplete="off">
+    </div>
+    <button class="accion" id="btn-guardar-mesa">Agregar mesa</button>
+    <button class="accion sec" id="btn-cancelar-mesa" hidden>Cancelar</button>
+  </div>
+  <p class="nota" id="mesas-estado"></p>
+
+  <h3>Mesas guardadas</h3>
+  <div id="lista-mesas"></div>
+
+  <h3>Dónde se guardan tus datos</h3>
+  <div id="estado-guardado"></div>
+
+  <details>
+    <summary>Respaldo completo</summary>
+    <div class="cuerpo">
+      <p class="nota">Copia de seguridad de <strong>todas</strong> las mesas con sus tiradas,
+      en un solo archivo. Sirve para llevarlas a otro dispositivo o para no depender de
+      ningún guardado automático.</p>
+      <div class="fila-botones">
+        <button class="accion sec" id="btn-respaldo-bajar">Descargar respaldo</button>
+        <button class="accion sec" id="btn-respaldo-ver">Mostrar como texto</button>
+        <button class="accion" id="btn-respaldo-restaurar">Restaurar desde texto</button>
+      </div>
+      <textarea id="respaldo-texto" rows="4" placeholder="Pegá acá un respaldo para restaurarlo"></textarea>
+      <p class="nota" id="respaldo-estado"></p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= SIMULADOR ================= -->
+<section class="panel" id="p-sim" role="tabpanel" aria-labelledby="tab-sim">
+  <h2>Simulador de sistemas</h2>
+  <p class="intro">Ocho progresiones de apuesta, las mismas condiciones para todas, miles
+  de sesiones simuladas. Lo que se mide no es cuál gana — ninguna gana — sino qué le pasa
+  a tu banca con cada una.</p>
+
+  <div class="controles">
+    <div class="campo chico"><label for="s-rueda">Rueda</label>
+      <select id="s-rueda">
+        <option value="europea">Europea</option>
+        <option value="americana">Americana</option>
+        <option value="francesa">Francesa</option>
+      </select></div>
+    <div class="campo chico"><label for="s-apuesta">Apuesta</label>
+      <select id="s-apuesta"></select></div>
+    <div class="campo chico"><label for="s-banca">Banca inicial</label>
+      <input id="s-banca" type="number" value="1000" min="10" step="10"></div>
+    <div class="campo chico"><label for="s-base">Apuesta base</label>
+      <input id="s-base" type="number" value="10" min="1" step="1"></div>
+    <div class="campo chico"><label for="s-tiradas">Tiradas por sesión</label>
+      <input id="s-tiradas" type="number" value="300" min="10" max="5000" step="10"></div>
+    <div class="campo chico"><label for="s-sesiones">Sesiones</label>
+      <input id="s-sesiones" type="number" value="3000" min="100" max="20000" step="100"></div>
+    <div class="campo chico"><label for="s-limite">Límite de mesa</label>
+      <input id="s-limite" type="number" value="5000" min="10" step="10"></div>
+    <button class="accion" id="btn-simular">Simular</button>
+  </div>
+
+  <p class="progreso" id="sim-progreso"></p>
+  <div id="sim-salida"></div>
+</section>
+
+<!-- ================= SORTEOS ================= -->
+<section class="panel" id="p-sorteos" role="tabpanel" aria-labelledby="tab-sorteos">
+  <h2>Quiniela y loto</h2>
+  <p class="intro">Cargá un histórico de sorteos y Azarium corre la batería completa de
+  tests de aleatoriedad, más un backtest sin look-ahead de las estrategias que todo el
+  mundo usa: números calientes, fríos, atrasados.</p>
+
+  <div class="controles">
+    <div class="campo chico"><label for="q-juego">Juego</label>
+      <select id="q-juego">
+        <option value="quiniela">Quiniela (00-99)</option>
+        <option value="loto">Loto (00-41)</option>
+        <option value="quini6">Quini 6 (00-45)</option>
+      </select></div>
+    <div class="campo chico"><label for="q-modalidad">Modalidad</label>
+      <select id="q-modalidad">
+        <option value="cabeza">A la cabeza (paga 70)</option>
+        <option value="a20">A los 20 (paga 3.5)</option>
+      </select></div>
+    <div class="campo chico"><label for="q-sorteos">Sorteos de demo</label>
+      <input id="q-sorteos" type="number" value="3650" min="100" max="20000" step="50"></div>
+    <button class="accion" id="btn-analizar">Analizar</button>
+    <button class="accion sec" id="btn-demo-sesgo">Demo con sesgo</button>
+  </div>
+
+  <details>
+    <summary>Cargar mis propios sorteos</summary>
+    <div class="cuerpo">
+      <p class="nota">Un sorteo por línea, los números separados por comas o espacios.
+      Si la línea arranca con una fecha, se ignora. Todas las líneas tienen que traer la
+      misma cantidad de números.</p>
+      <textarea id="q-texto" rows="5" placeholder="2016-01-04, 37, 12, 89&#10;2016-01-05, 4, 71, 23"></textarea>
+      <div class="fila-botones">
+        <button class="accion" id="btn-q-cargar">Analizar estos sorteos</button>
+        <button class="accion sec" id="btn-q-archivo">Cargar archivo CSV</button>
+        <input type="file" id="q-archivo" accept=".csv,.txt" hidden>
+      </div>
+      <p class="nota" id="q-estado"></p>
+    </div>
+  </details>
+
+  <p class="progreso" id="q-progreso"></p>
+  <div id="q-salida"></div>
+</section>
+
+<!-- ================= REFERENCIA ================= -->
+<section class="panel" id="p-ref" role="tabpanel" aria-labelledby="tab-ref">
+  <h2>Lo que fija el resultado</h2>
+  <p class="intro">Todo juego de azar tiene un número que lo define: cuánto se queda la
+  casa de cada peso que pasa por la mesa. Es lo primero que hay que mirar y lo único que
+  no se puede cambiar desde la silla del jugador.</p>
+  <div id="ref-salida"></div>
+</section>
+
+<footer>
+  Azarium · los cálculos corren enteros en este dispositivo: ningún dato tuyo se envía a
+  terceros. Dónde quedan guardadas tus mesas depende de cómo abras la app — el estado real
+  se muestra arriba, en <strong>Mis mesas</strong>.
+</footer>
+</div>
+
+<script>
+/* ============================================================================
+   Azarium - motor estadistico y aplicacion.
+   Port a JavaScript del paquete Python del mismo proyecto. Todo corre en el
+   dispositivo: no hay red, no hay servidor, no se envia nada.
+   ========================================================================== */
+"use strict";
+
+/* ------------------------------------------------------------------ stats */
+const EPS = 3e-16, FPMIN = 1e-300, ITMAX = 500;
+
+function lgamma(x){
+  // Lanczos g=7, n=9. Error relativo < 1e-13 para x > 0.
+  const g = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x);
+  x -= 1;
+  let a = g[0];
+  const t = x + 7.5;
+  for (let i = 1; i < 9; i++) a += g[i] / (x + i);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+
+function gser(a, x){
+  let ap = a, sum = 1 / a, del = sum;
+  for (let i = 0; i < ITMAX; i++){
+    ap += 1; del *= x / ap; sum += del;
+    if (Math.abs(del) < Math.abs(sum) * EPS) break;
+  }
+  return sum * Math.exp(-x + a * Math.log(x) - lgamma(a));
+}
+
+function gcf(a, x){
+  let b = x + 1 - a, c = 1 / FPMIN, d = 1 / b, h = d;
+  for (let i = 1; i < ITMAX; i++){
+    const an = -i * (i - a);
+    b += 2; d = an * d + b;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = b + an / c;
+    if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if (Math.abs(del - 1) < EPS) break;
+  }
+  return h * Math.exp(-x + a * Math.log(x) - lgamma(a));
+}
+
+/** Gamma incompleta regularizada superior Q(a,x). */
+function gammaQ(a, x){
+  if (x <= 0) return 1;
+  return x < a + 1 ? 1 - gser(a, x) : gcf(a, x);
+}
+
+/** P(X > x) para chi-cuadrado con df grados de libertad. */
+function chi2sf(x, df){ return x <= 0 ? 1 : gammaQ(df / 2, x / 2); }
+
+/** P(Z > z) para la normal estandar. */
+function normSf(z){ return 0.5 * erfc(z / Math.SQRT2); }
+
+function erfc(x){
+  // Aproximacion de Numerical Recipes, error fraccional < 1.2e-7.
+  const z = Math.abs(x), t = 2 / (2 + z);
+  const ty = 4 * t - 2;
+  const cof = [-1.3026537197817094, 6.4196979235649026e-1, 1.9476473204185836e-2,
+    -9.561514786808631e-3, -9.46595344482036e-4, 3.66839497852761e-4,
+    4.2523324806907e-5, -2.0278578112534e-5, -1.624290004647e-6,
+    1.303655835580e-6, 1.5626441722e-8, -8.5238095915e-8, 6.529054439e-9,
+    5.059343495e-9, -9.91364156e-10, -2.27365122e-10, 9.6467911e-11,
+    2.394038e-12, -6.886027e-12, 8.94487e-13, 3.13092e-13, -1.12708e-13,
+    3.81e-16, 7.106e-15];
+  let d = 0, dd = 0;
+  for (let j = cof.length - 1; j > 0; j--){
+    const tmp = d; d = ty * d - dd + cof[j]; dd = tmp;
+  }
+  const ans = t * Math.exp(-z * z + 0.5 * (cof[0] + ty * d) - dd);
+  return x >= 0 ? ans : 2 - ans;
+}
+
+/** Inversa de la normal estandar (Acklam). */
+function normPpf(p){
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2,
+    1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2,
+    6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838,
+    -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996,
+    3.754408661907416];
+  const pl = 0.02425, ph = 1 - pl;
+  let q, r;
+  if (p < pl){
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+           ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  if (p > ph){
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+            ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  q = p - 0.5; r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5]) * q /
+         (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+
+function betacf(a, b, x){
+  let qab = a + b, qap = a + 1, qam = a - 1;
+  let c = 1, d = 1 - qab * x / qap;
+  if (Math.abs(d) < FPMIN) d = FPMIN;
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= ITMAX; m++){
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c;  if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c;  if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if (Math.abs(del - 1) < 1e-14) break;
+  }
+  return h;
+}
+
+/** Beta incompleta regularizada I_x(a,b). */
+function betai(a, b, x){
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) +
+                      a * Math.log(x) + b * Math.log(1 - x));
+  return x < (a + 1) / (a + b + 2) ? bt * betacf(a, b, x) / a
+                                   : 1 - bt * betacf(b, a, 1 - x) / b;
+}
+
+/** P(X >= k) exacta para binomial(n,p), via la identidad con la beta. */
+function binomSfGe(k, n, p){
+  if (k <= 0) return 1;
+  if (k > n) return 0;
+  return betai(k, n - k + 1, p);
+}
+
+/** P(X <= k) para binomial(n,p). */
+function binomCdf(k, n, p){ return 1 - binomSfGe(k + 1, n, p); }
+
+/** Intervalo de Wilson para una proporcion. */
+function wilson(exitos, n, conf){
+  conf = conf || 0.95;
+  if (!n) return [0, 1];
+  const z = normPpf(1 - (1 - conf) / 2), ph = exitos / n, den = 1 + z * z / n;
+  const centro = (ph + z * z / (2 * n)) / den;
+  const margen = z * Math.sqrt(ph * (1 - ph) / n + z * z / (4 * n * n)) / den;
+  return [Math.max(0, centro - margen), Math.min(1, centro + margen)];
+}
+
+/**
+ * Benjamini-Hochberg: controla la tasa de falsos descubrimientos.
+ * Sin esto, testear 37 casillas a la vez produce ~2 "hallazgos" que son ruido.
+ */
+function benjaminiHochberg(ps, fdr){
+  fdr = fdr || 0.05;
+  const n = ps.length;
+  const orden = ps.map((p, i) => [p, i]).sort((x, y) => x[0] - y[0]);
+  const rech = new Array(n).fill(false);
+  let corte = -1;
+  for (let i = 0; i < n; i++) if (orden[i][0] <= fdr * (i + 1) / n) corte = i;
+  for (let i = 0; i <= corte; i++) rech[orden[i][1]] = true;
+  return rech;
+}
+
+/** PRNG reproducible (mulberry32): mismas semillas, mismos resultados. */
+function rng(semilla){
+  let a = semilla >>> 0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/* ----------------------------------------------------------------- ruleta */
+const ORDEN_EUROPEA = ["0","32","15","19","4","21","2","25","17","34","6","27",
+  "13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9",
+  "22","18","29","7","28","12","35","3","26"];
+const ORDEN_AMERICANA = ["0","28","9","26","30","11","7","20","32","17","5","22",
+  "34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31",
+  "18","6","21","33","16","4","23","35","14","2"];
+const ROJOS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+const RUEDAS = {
+  europea:  {nombre:"Europea (un cero)",     casillas:ORDEN_EUROPEA,   reglaCero:"ninguna"},
+  americana:{nombre:"Americana (doble cero)",casillas:ORDEN_AMERICANA, reglaCero:"ninguna"},
+  francesa: {nombre:"Francesa (con partage)",casillas:ORDEN_EUROPEA,   reglaCero:"partage"},
+};
+
+function colorCasilla(c){
+  if (c === "0" || c === "00") return "verde";
+  return ROJOS.has(parseInt(c, 10)) ? "rojo" : "negro";
+}
+
+/** Vecinos fisicos en el disco: un defecto mecanico afecta un sector contiguo. */
+function vecinos(rueda, casilla, radio){
+  const cs = rueda.casillas, n = cs.length, i = cs.indexOf(casilla), out = [];
+  for (let d = -radio; d <= radio; d++) out.push(cs[(i + d + n * 2) % n]);
+  return out;
+}
+
+function catalogo(rueda){
+  const pres = new Set(rueda.casillas), ap = {};
+  const filtrar = arr => arr.filter(v => pres.has(String(v))).map(String);
+  const negros = [];
+  for (let i = 1; i <= 36; i++) if (!ROJOS.has(i)) negros.push(i);
+  const rango = (a, b, paso) => {
+    const o = []; for (let i = a; i <= b; i += (paso || 1)) o.push(i); return o;
+  };
+  ap["rojo"]   = {nombre:"Rojo",  gana:filtrar([...ROJOS]), pago:1, dineroPar:true};
+  ap["negro"]  = {nombre:"Negro", gana:filtrar(negros),     pago:1, dineroPar:true};
+  ap["par"]    = {nombre:"Par",   gana:filtrar(rango(2,36,2)), pago:1, dineroPar:true};
+  ap["impar"]  = {nombre:"Impar", gana:filtrar(rango(1,35,2)), pago:1, dineroPar:true};
+  ap["falta"]  = {nombre:"Falta (1-18)", gana:filtrar(rango(1,18)), pago:1, dineroPar:true};
+  ap["pasa"]   = {nombre:"Pasa (19-36)", gana:filtrar(rango(19,36)), pago:1, dineroPar:true};
+  ap["docena1"]= {nombre:"Docena 1 (1-12)",  gana:filtrar(rango(1,12)),  pago:2};
+  ap["docena2"]= {nombre:"Docena 2 (13-24)", gana:filtrar(rango(13,24)), pago:2};
+  ap["docena3"]= {nombre:"Docena 3 (25-36)", gana:filtrar(rango(25,36)), pago:2};
+  for (let c = 0; c < 3; c++)
+    ap["columna" + (c+1)] = {nombre:"Columna " + (c+1),
+      gana:filtrar(rango(1+c, 36, 3)), pago:2};
+  ap["pleno"]  = {nombre:"Pleno a un número", gana:[rueda.casillas[1]], pago:35};
+  return ap;
+}
+
+function mcd(a, b){ a = Math.abs(a); b = Math.abs(b); while (b){ [a,b] = [b, a%b]; } return a; }
+
+/** Esperanza por unidad apostada. Devuelve {valor, fraccion}. */
+function esperanza(ap, rueda){
+  const n = rueda.casillas.length, g = ap.gana.length;
+  const nCeros = rueda.casillas.filter(c => c === "0" || c === "00").length;
+  let num, den = n;
+  if (ap.dineroPar && rueda.reglaCero === "partage"){
+    // Con partage se recupera la mitad de la apuesta cuando sale cero.
+    num = g * ap.pago * 2 - (n - g - nCeros) * 2 - nCeros;
+    den = n * 2;
+  } else {
+    num = g * ap.pago - (n - g);
+  }
+  const d = mcd(num, den) || 1;
+  return {valor: num / den, fraccion: (num/d) + "/" + (den/d)};
+}
+
+function ventajaCasa(ap, rueda){ return -esperanza(ap, rueda).valor * 100; }
+
+/**
+ * Tiradas necesarias para detectar una casilla cuya probabilidad real es p1.
+ * Corrige por las N casillas que se testean a la vez.
+ */
+function tiradasPara(p1, rueda, potencia, alfa){
+  potencia = potencia || 0.80; alfa = alfa || 0.05;
+  const n = rueda.casillas.length, p0 = 1 / n;
+  if (p1 <= p0) return Infinity;
+  const za = normPpf(1 - alfa / n), zb = normPpf(potencia);
+  const num = za * Math.sqrt(p0 * (1 - p0)) + zb * Math.sqrt(p1 * (1 - p1));
+  return Math.pow(num / (p1 - p0), 2);
+}
+
+/**
+ * Tiradas para detectar el sesgo mas chico que seria RENTABLE.
+ * Un pleno paga 35 a 1, asi que solo conviene si p real supera 1/36. Es el
+ * caso limite y por eso da un numero enorme: sirve de referencia, no de meta.
+ */
+function tiradasNecesarias(rueda, potencia, alfa){
+  return Math.ceil(tiradaPara36(rueda, potencia, alfa));
+}
+function tiradaPara36(rueda, potencia, alfa){
+  return tiradasPara(1 / 36, rueda, potencia, alfa);
+}
+
+/**
+ * El calculo invertido, que es el util en la practica: con `nObs` tiradas ya
+ * registradas, cual es el sesgo mas chico que se podria detectar. Se resuelve
+ * por biseccion porque no tiene forma cerrada. Devuelve el multiplo respecto
+ * de lo normal (2 = esa casilla sale el doble de seguido), o null si con esa
+ * muestra no se detectaria ni un sesgo grosero.
+ */
+function sesgoDetectable(nObs, rueda, potencia, alfa){
+  const p0 = 1 / rueda.casillas.length;
+  const techo = Math.min(0.9, p0 * 25);
+  if (!(nObs > 0) || tiradasPara(techo, rueda, potencia, alfa) > nObs) return null;
+  let lo = p0 * 1.000001, hi = techo;
+  for (let i = 0; i < 80; i++){
+    const mid = (lo + hi) / 2;
+    if (tiradasPara(mid, rueda, potencia, alfa) > nObs) lo = mid; else hi = mid;
+  }
+  return {p: hi, multiplo: hi / p0};
+}
+
+/* --------------------------------------------------- analisis de una mesa */
+function analizarMesa(tiradas, rueda, radio){
+  radio = radio || 3;
+  const cs = rueda.casillas, k = cs.length, n = tiradas.length;
+  const idx = {}; cs.forEach((c, i) => idx[c] = i);
+  const obs = new Array(k).fill(0);
+  tiradas.forEach(t => { if (t in idx) obs[idx[t]]++; });
+
+  const p0 = 1 / k, esp = n * p0;
+  const sigma = Math.sqrt(n * p0 * (1 - p0));
+  const chi2 = obs.reduce((s, o) => s + Math.pow(o - esp, 2) / (esp || 1), 0);
+  const pChi2 = n > 0 ? chi2sf(chi2, k - 1) : 1;
+
+  // Test unilateral por casilla: buscamos exceso, no defecto.
+  const ps = obs.map(o => binomSfGe(o, n, p0));
+  const rech = benjaminiHochberg(ps, 0.05);
+  const UMBRAL = 1 / 36;
+  const casillas = cs.map((c, i) => {
+    const [lo, hi] = wilson(obs[i], n);
+    const frec = n ? obs[i] / n : 0;
+    return {
+      casilla:c, obs:obs[i], esp, frec, p:ps[i], lo, hi,
+      z: sigma ? (obs[i] - esp) / sigma : 0,
+      sig: rech[i],
+      explotable: rech[i] && lo > UMBRAL,
+      ventaja: (frec * 36 - 1) * 100,
+    };
+  });
+
+  // Sectores fisicos contiguos: concentran la senal de un defecto mecanico.
+  const ancho = 2 * radio + 1, pSec = ancho / k, espSec = n * pSec;
+  const sigSec = Math.sqrt(n * pSec * (1 - pSec));
+  const crudos = cs.map((c, i) => {
+    let tot = 0;
+    for (let d = -radio; d <= radio; d++) tot += obs[(i + d + k * 2) % k];
+    return {centro:c, casillas:vecinos(rueda, c, radio), obs:tot,
+            esp:espSec, z: sigSec ? (tot - espSec) / sigSec : 0,
+            p: binomSfGe(tot, n, pSec)};
+  });
+  const rechSec = benjaminiHochberg(crudos.map(s => s.p), 0.05);
+  crudos.forEach((s, i) => s.sig = rechSec[i]);
+
+  const necesarias = tiradasNecesarias(rueda);
+  return {
+    n, obs, esp, sigma, chi2, pChi2, casillas,
+    sectores: crudos.filter(s => s.sig).sort((a,b) => b.z - a.z),
+    explotables: casillas.filter(c => c.explotable).sort((a,b) => b.ventaja - a.ventaja),
+    necesarias,
+    progreso: Math.min(1, n / necesarias),
+  };
+}
+
+/* ------------------------------------------------------------- sistemas */
+const SISTEMAS = [
+  {clave:"plana", nombre:"Plana", crear:b => {
+    return {apuesta:() => b, resolver:() => {}};
+  }},
+  {clave:"martingala", nombre:"Martingala", crear:b => {
+    let a = b; return {apuesta:() => a, resolver:g => { a = g ? b : a * 2; }};
+  }},
+  {clave:"granmartingala", nombre:"Gran Martingala", crear:b => {
+    let a = b; return {apuesta:() => a, resolver:g => { a = g ? b : a * 2 + b; }};
+  }},
+  {clave:"dalembert", nombre:"D'Alembert", crear:b => {
+    let u = 1;
+    return {apuesta:() => b * u, resolver:g => { u = g ? Math.max(1, u-1) : u+1; }};
+  }},
+  {clave:"fibonacci", nombre:"Fibonacci", crear:b => {
+    const s = [1,1]; let pos = 0;
+    return {
+      apuesta:() => { while (pos >= s.length) s.push(s[s.length-1]+s[s.length-2]);
+                      return b * s[pos]; },
+      resolver:g => { pos = g ? Math.max(0, pos-2) : pos+1; }};
+  }},
+  {clave:"labouchere", nombre:"Labouchère", crear:b => {
+    let l = [1,2,3,4,5,6];
+    const monto = () => { if (!l.length) l = [1,2,3,4,5,6];
+      return l.length === 1 ? b*l[0] : b*(l[0]+l[l.length-1]); };
+    return {apuesta:monto, resolver:g => {
+      if (!l.length) return;
+      if (g){ l.length === 1 ? l.pop() : (l = l.slice(1, -1)); }
+      else { l.push(l.length > 1 ? l[0]+l[l.length-1] : l[0]); }
+    }};
+  }},
+  {clave:"paroli", nombre:"Paroli", crear:b => {
+    let a = b, r = 0;
+    return {apuesta:() => a, resolver:g => {
+      if (g){ r++; if (r >= 3){ a = b; r = 0; } else a *= 2; }
+      else { a = b; r = 0; }
+    }};
+  }},
+  {clave:"oscar", nombre:"Oscar's Grind", crear:b => {
+    let a = b, ciclo = 0;
+    const monto = () => { const falta = b - ciclo; return falta > 0 ? Math.min(a, falta) : b; };
+    return {apuesta:monto, resolver:g => {
+      const m = monto();
+      if (g){ ciclo += m; if (ciclo >= b){ a = b; ciclo = 0; } else a += b; }
+      else ciclo -= m;
+    }};
+  }},
+];
+
+/**
+ * Simula sesiones de un sistema. Devuelve metricas de banca.
+ * `pesos` opcional permite simular una rueda sesgada (frecuencias observadas).
+ */
+function simularSistema(def, cfg, pesos){
+  const rueda = cfg.rueda, cs = rueda.casillas, k = cs.length;
+  const gana = new Set(cfg.apuesta.gana.map(c => cs.indexOf(c)));
+  const ceros = new Set(cs.map((c,i) => (c==="0"||c==="00") ? i : -1).filter(i => i>=0));
+  const partage = cfg.apuesta.dineroPar && rueda.reglaCero === "partage";
+  const pago = cfg.apuesta.pago;
+  const r = rng(cfg.semilla);
+
+  // Distribucion acumulada para muestrear la rueda (uniforme o sesgada).
+  let acum = null;
+  if (pesos){
+    const tot = pesos.reduce((a,b) => a+b, 0);
+    acum = []; let s = 0;
+    for (let i = 0; i < k; i++){ s += pesos[i] / tot; acum.push(s); }
+  }
+  const girar = () => {
+    if (!acum) return Math.floor(r() * k);
+    const u = r();
+    let lo = 0, hi = k - 1;
+    while (lo < hi){ const m = (lo+hi) >> 1; u <= acum[m] ? hi = m : lo = m+1; }
+    return lo;
+  };
+
+  const finales = new Float64Array(cfg.sesiones);
+  let arruinadas = 0, apostadoTotal = 0, netoTotal = 0, ganadoras = 0;
+  for (let s = 0; s < cfg.sesiones; s++){
+    const sis = def.crear(cfg.base);
+    let banca = cfg.banca, apostado = 0;
+    for (let t = 0; t < cfg.tiradas; t++){
+      let m = sis.apuesta();
+      if (m > cfg.limite) m = cfg.limite;
+      if (m > banca) m = banca;
+      if (m <= 0){ arruinadas++; break; }
+      const res = girar();
+      apostado += m;
+      let g = false;
+      if (gana.has(res)){ banca += m * pago; g = true; }
+      else if (partage && ceros.has(res)) banca -= m / 2;
+      else banca -= m;
+      sis.resolver(g);
+      if (banca <= 0){ arruinadas++; break; }
+    }
+    banca = Math.max(0, banca);
+    finales[s] = banca;
+    apostadoTotal += apostado;
+    netoTotal += banca - cfg.banca;
+    if (banca > cfg.banca) ganadoras++;
+  }
+  const orden = Float64Array.from(finales).sort();
+  const pct = q => orden[Math.min(orden.length-1, Math.floor(q * orden.length))];
+  let suma = 0; for (let i = 0; i < finales.length; i++) suma += finales[i];
+  return {
+    nombre: def.nombre,
+    finales,
+    medio: suma / cfg.sesiones - cfg.banca,
+    mediana: pct(0.5) - cfg.banca,
+    probRuina: arruinadas / cfg.sesiones,
+    probGanar: ganadoras / cfg.sesiones,
+    retorno: apostadoTotal ? netoTotal / apostadoTotal : 0,
+    percentiles: [5,25,50,75,95].map(p => ({p, v: pct(p/100)})),
+  };
+}
+
+/* ------------------------------------------------------------- sorteos */
+const JUEGOS = {
+  quiniela:{nombre:"Quiniela", min:0, max:99, bolillas:20, reposicion:true},
+  loto:    {nombre:"Loto",     min:0, max:41, bolillas:6,  reposicion:false},
+  quini6:  {nombre:"Quini 6",  min:0, max:45, bolillas:6,  reposicion:false},
+};
+const PAGO_CABEZA = 70, PAGO_A20 = 3.5;
+
+function cardinalidad(j){ return j.max - j.min + 1; }
+
+function generarSorteos(juego, n, semilla, sesgo){
+  const r = rng(semilla), k = cardinalidad(juego);
+  const pesos = new Array(k).fill(1);
+  if (sesgo) for (const num in sesgo) pesos[num - juego.min] = sesgo[num];
+  const tot = pesos.reduce((a,b) => a+b, 0);
+  const acum = []; let s = 0;
+  for (let i = 0; i < k; i++){ s += pesos[i]/tot; acum.push(s); }
+  const uno = () => {
+    const u = r(); let lo = 0, hi = k-1;
+    while (lo < hi){ const m = (lo+hi) >> 1; u <= acum[m] ? hi = m : lo = m+1; }
+    return juego.min + lo;
+  };
+  const filas = [];
+  for (let i = 0; i < n; i++){
+    if (juego.reposicion){
+      const f = []; for (let b = 0; b < juego.bolillas; b++) f.push(uno());
+      filas.push(f);
+    } else {
+      const vistos = new Set();
+      while (vistos.size < juego.bolillas) vistos.add(uno());
+      filas.push([...vistos]);
+    }
+  }
+  return {juego, filas, fuente: sesgo ? "demo con sesgo" : "demo uniforme"};
+}
+
+function frecuenciasSorteos(hist){
+  const k = cardinalidad(hist.juego), f = new Array(k).fill(0);
+  hist.filas.forEach(fila => fila.forEach(v => f[v - hist.juego.min]++));
+  return f;
+}
+
+function rankear(v){
+  const n = v.length;
+  const orden = v.map((x,i) => [x,i]).sort((a,b) => a[0]-b[0]);
+  const r = new Array(n);
+  orden.forEach((par, i) => r[par[1]] = i + 1);
+  // promediar empates
+  let i = 0;
+  while (i < n){
+    let j = i;
+    while (j+1 < n && orden[j+1][0] === orden[i][0]) j++;
+    if (j > i){
+      let s = 0; for (let t = i; t <= j; t++) s += t+1;
+      const prom = s / (j-i+1);
+      for (let t = i; t <= j; t++) r[orden[t][1]] = prom;
+    }
+    i = j + 1;
+  }
+  return r;
+}
+
+function correlacion(a, b){
+  const n = a.length;
+  const ma = a.reduce((x,y)=>x+y,0)/n, mb = b.reduce((x,y)=>x+y,0)/n;
+  let num = 0, da = 0, db = 0;
+  for (let i = 0; i < n; i++){
+    const x = a[i]-ma, y = b[i]-mb;
+    num += x*y; da += x*x; db += y*y;
+  }
+  return (da && db) ? num / Math.sqrt(da*db) : 0;
+}
+
+function bateriaSorteos(hist){
+  const juego = hist.juego, k = cardinalidad(juego);
+  const frec = frecuenciasSorteos(hist);
+  const n = frec.reduce((a,b) => a+b, 0);
+  const esp = n / k;
+  const out = [];
+
+  // 1. Chi-cuadrado de uniformidad
+  const chi2 = frec.reduce((s,o) => s + Math.pow(o-esp,2)/esp, 0);
+  out.push({nombre:"Chi-cuadrado de uniformidad", stat:chi2, df:k-1,
+            p:chi2sf(chi2, k-1),
+            detalle:`${n.toLocaleString("es-AR")} extracciones, ${esp.toFixed(1)} esperadas por número`});
+
+  // 2. Persistencia de calientes: la pregunta que importa
+  const mitad = Math.floor(hist.filas.length / 2);
+  const f1 = new Array(k).fill(0), f2 = new Array(k).fill(0);
+  hist.filas.forEach((fila, t) => fila.forEach(v =>
+    (t < mitad ? f1 : f2)[v - juego.min]++));
+  const rho = correlacion(rankear(f1), rankear(f2));
+  const zRho = rho * Math.sqrt(k - 1);
+  out.push({nombre:"Persistencia de números calientes", stat:zRho, df:null,
+            p: 2 * normSf(Math.abs(zRho)),
+            detalle:`Spearman ρ=${rho >= 0 ? "+" : ""}${rho.toFixed(4)} entre la primera y la segunda mitad`});
+
+  // 3. Rachas de paridad (Wald-Wolfowitz)
+  const serie = [];
+  hist.filas.forEach(f => f.forEach(v => serie.push(v)));
+  const bits = serie.map(v => v % 2 === 0 ? 1 : 0);
+  const n1 = bits.reduce((a,b) => a+b, 0), n0 = bits.length - n1;
+  let rachas = 1;
+  for (let i = 1; i < bits.length; i++) if (bits[i] !== bits[i-1]) rachas++;
+  const N = n0 + n1;
+  const mu = 2*n0*n1/N + 1;
+  const varr = (2*n0*n1*(2*n0*n1-N)) / (N*N*(N-1));
+  const zR = (rachas - mu) / Math.sqrt(varr);
+  out.push({nombre:"Test de rachas (paridad)", stat:zR, df:null,
+            p: 2 * normSf(Math.abs(zR)),
+            detalle:`${rachas.toLocaleString("es-AR")} rachas observadas, ${mu.toFixed(0)} esperadas`});
+
+  // 4. Test serial: el sorteo anterior informa sobre el siguiente?
+  const grupos = 10, anchoG = Math.ceil(k / grupos);
+  const tabla = Array.from({length:grupos}, () => new Array(grupos).fill(0));
+  for (let i = 0; i + 1 < serie.length; i++){
+    const a = Math.min(grupos-1, Math.floor((serie[i]-juego.min)/anchoG));
+    const b = Math.min(grupos-1, Math.floor((serie[i+1]-juego.min)/anchoG));
+    tabla[a][b]++;
+  }
+  const totF = tabla.map(f => f.reduce((a,b)=>a+b,0));
+  const totC = new Array(grupos).fill(0);
+  tabla.forEach(f => f.forEach((v,j) => totC[j] += v));
+  const tot = totF.reduce((a,b)=>a+b,0);
+  let chiS = 0, valido = true;
+  for (let i = 0; i < grupos; i++) for (let j = 0; j < grupos; j++){
+    const e = totF[i]*totC[j]/tot;
+    if (e < 5) valido = false;
+    if (e > 0) chiS += Math.pow(tabla[i][j]-e, 2)/e;
+  }
+  const dfS = (grupos-1)*(grupos-1);
+  out.push({nombre:"Test serial (independencia)", stat: valido ? chiS : NaN,
+            df: valido ? dfS : null, p: valido ? chi2sf(chiS, dfS) : NaN,
+            detalle: valido ? `tabla ${grupos}×${grupos} sobre ${tot.toLocaleString("es-AR")} pares`
+                            : "muestra insuficiente: hay celdas con esperado menor a 5"});
+
+  // 5. Test de huecos sobre el numero mas frecuente
+  let mejor = 0; for (let i = 1; i < k; i++) if (frec[i] > frec[mejor]) mejor = i;
+  const numero = juego.min + mejor;
+  const pres = hist.filas.map(f => f.includes(numero));
+  const idxs = []; pres.forEach((v,i) => { if (v) idxs.push(i); });
+  if (idxs.length >= 20){
+    const gaps = []; for (let i = 1; i < idxs.length; i++) gaps.push(idxs[i]-idxs[i-1]);
+    const pAp = idxs.length / hist.filas.length;
+    const maxBin = Math.max(3, Math.ceil(Math.log(0.02)/Math.log(1-pAp)));
+    const ob = new Array(maxBin).fill(0);
+    gaps.forEach(g => ob[Math.min(g, maxBin)-1]++);
+    const totG = gaps.length;
+    const probs = []; let acumP = 0;
+    for (let i = 0; i < maxBin; i++){ const pr = pAp*Math.pow(1-pAp,i); probs.push(pr); acumP += pr; }
+    probs[maxBin-1] += 1 - acumP;
+    let chiG = 0, dfG = -1;
+    for (let i = 0; i < maxBin; i++){
+      const e = totG*probs[i];
+      if (e >= 5){ chiG += Math.pow(ob[i]-e,2)/e; dfG++; }
+    }
+    out.push({nombre:"Test de huecos", stat:chiG, df:dfG, p: dfG > 0 ? chi2sf(chiG, dfG) : NaN,
+              detalle:`número ${numero}: ${idxs.length} apariciones, hueco medio ${(gaps.reduce((a,b)=>a+b,0)/gaps.length).toFixed(1)} (esperado ${(1/pAp).toFixed(1)})`});
+  } else {
+    out.push({nombre:"Test de huecos", stat:NaN, df:null, p:NaN,
+              detalle:"muestra insuficiente"});
+  }
+  return out;
+}
+
+function porNumero(hist){
+  const juego = hist.juego, k = cardinalidad(juego);
+  const frec = frecuenciasSorteos(hist);
+  const n = frec.reduce((a,b) => a+b, 0), p = 1/k, esp = n*p;
+  const sigma = Math.sqrt(n*p*(1-p));
+  const ps = frec.map(o => {
+    const cola = o >= esp ? binomSfGe(o, n, p) : binomCdf(o, n, p);
+    return Math.min(1, 2*cola);
+  });
+  const rech = benjaminiHochberg(ps, 0.05);
+  return frec.map((o, i) => ({
+    numero: juego.min + i, obs:o, esp, z:(o-esp)/sigma, p:ps[i],
+    crudo: ps[i] < 0.05, fdr: rech[i],
+  }));
+}
+
+/* Backtest sin look-ahead: cada estrategia elige con los sorteos anteriores. */
+function backtest(hist, calentamiento, modalidad, semilla){
+  const juego = hist.juego, k = cardinalidad(juego);
+  const pago = modalidad === "cabeza" ? PAGO_CABEZA : PAGO_A20;
+  const N = hist.filas.length;
+  if (N <= calentamiento) return null;
+  const r = rng(semilla);
+
+  const frecAcum = new Array(k).fill(0);
+  const ultima = new Array(k).fill(-1);
+  for (let t = 0; t < calentamiento; t++)
+    hist.filas[t].forEach(v => { frecAcum[v-juego.min]++; ultima[v-juego.min] = t; });
+
+  const ests = [
+    {nombre:"Calientes (los que más salieron)", sel: t => argExtremo(frecAcum, true)},
+    {nombre:"Fríos (los que menos salieron)",   sel: t => argExtremo(frecAcum, false)},
+    {nombre:"Atrasados (más tiempo sin salir)", sel: t => {
+      let mejor = 0; for (let i = 1; i < k; i++) if (ultima[i] < ultima[mejor]) mejor = i;
+      return juego.min + mejor; }},
+    {nombre:"Repetir el sorteo anterior", sel: t => hist.filas[t-1][0]},
+    {nombre:"Aleatorio", sel: t => juego.min + Math.floor(r()*k)},
+    {nombre:"Número fijo", sel: t => juego.min},
+  ];
+  const res = ests.map(e => ({estrategia:e.nombre, apuestas:0, aciertos:0}));
+
+  function argExtremo(arr, mayor){
+    let mejor = 0;
+    for (let i = 1; i < arr.length; i++)
+      if (mayor ? arr[i] > arr[mejor] : arr[i] < arr[mejor]) mejor = i;
+    return juego.min + mejor;
+  }
+
+  for (let t = calentamiento; t < N; t++){
+    const sorteo = hist.filas[t];
+    const objetivo = modalidad === "cabeza" ? new Set([sorteo[0]]) : new Set(sorteo);
+    ests.forEach((e, i) => {
+      const elegido = e.sel(t);
+      res[i].apuestas++;
+      if (objetivo.has(elegido)) res[i].aciertos++;
+    });
+    sorteo.forEach(v => { frecAcum[v-juego.min]++; ultima[v-juego.min] = t; });
+  }
+  res.forEach(rr => {
+    rr.retorno = rr.apuestas ? (rr.aciertos*pago - rr.apuestas)/rr.apuestas : 0;
+  });
+  return res;
+}
+
+function esperanzaSorteo(juego, modalidad){
+  const k = cardinalidad(juego);
+  if (modalidad === "cabeza") return (1/k)*PAGO_CABEZA - 1;
+  return (1 - Math.pow(1-1/k, juego.bolillas))*PAGO_A20 - 1;
+}
+
+/** Test de dos proporciones: la diferencia entre estrategias es real o ruido? */
+function difProporciones(a, b){
+  if (!a.apuestas || !b.apuestas) return NaN;
+  const pp = (a.aciertos+b.aciertos)/(a.apuestas+b.apuestas);
+  const se = Math.sqrt(pp*(1-pp)*(1/a.apuestas + 1/b.apuestas));
+  if (!se) return 1;
+  const z = (a.aciertos/a.apuestas - b.aciertos/b.apuestas)/se;
+  return 2*normSf(Math.abs(z));
+}
+
+/* ---------------------------------------------------------- graficos SVG */
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+function graficoBarras(valores, etiquetas, esperado, sigma, titulo, subtitulo){
+  const k = valores.length, W = 900, H = 300;
+  const x0 = 52, y0 = 28, an = W - x0 - 40, al = H - y0 - 52;
+  const maxV = Math.max(...valores, esperado + 4*sigma) * 1.1 || 1;
+  const px = i => x0 + (i + 0.5) / k * an;
+  const py = v => y0 + al - (v / maxV) * al;
+  const p = [`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(titulo)}">`];
+  p.push(`<rect x="${x0}" y="${y0}" width="${an}" height="${al}" class="panelfondo"/>`);
+  p.push(`<text x="${x0}" y="${y0-10}" class="tit">${esc(titulo)}</text>`);
+  const yA = py(esperado + 2*sigma), yB = py(Math.max(0, esperado - 2*sigma));
+  p.push(`<rect x="${x0}" y="${yA}" width="${an}" height="${Math.max(0,yB-yA)}" class="banda"/>`);
+  const bw = Math.max(1.2, an/k*0.74);
+  valores.forEach((v, i) => {
+    const fuera = Math.abs(v - esperado) > 2*sigma;
+    const y = py(v);
+    p.push(`<rect x="${(px(i)-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, py(0)-y).toFixed(1)}" class="${fuera?"barra-fuera":"barra"}"><title>${esc(etiquetas[i])}: ${v}</title></rect>`);
+  });
+  const ye = py(esperado);
+  p.push(`<line x1="${x0}" y1="${ye.toFixed(1)}" x2="${x0+an}" y2="${ye.toFixed(1)}" class="ref"/>`);
+  p.push(`<text x="${x0+an}" y="${(ye-5).toFixed(1)}" text-anchor="end">esperado ${esperado.toFixed(0)}</text>`);
+  const paso = Math.max(1, Math.ceil(k/22));
+  for (let i = 0; i < k; i += paso)
+    p.push(`<text x="${px(i).toFixed(1)}" y="${y0+al+15}" text-anchor="middle">${esc(etiquetas[i])}</text>`);
+  if (subtitulo)
+    p.push(`<text x="${x0}" y="${y0+al+34}" class="nota">${esc(subtitulo)}</text>`);
+  p.push("</svg>");
+  return p.join("");
+}
+
+function graficoHistograma(valores, referencia, titulo){
+  const W = 900, H = 260, x0 = 52, y0 = 28, an = W-x0-40, al = H-y0-48;
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < valores.length; i++){
+    if (valores[i] < lo) lo = valores[i];
+    if (valores[i] > hi) hi = valores[i];
+  }
+  hi = Math.max(hi, referencia*1.05);
+  if (hi <= lo) hi = lo + 1;
+  const bins = 44, cuenta = new Array(bins).fill(0);
+  for (let i = 0; i < valores.length; i++){
+    let b = Math.floor((valores[i]-lo)/(hi-lo)*bins);
+    if (b >= bins) b = bins-1; if (b < 0) b = 0;
+    cuenta[b]++;
+  }
+  const maxC = Math.max(...cuenta) || 1;
+  const px = v => x0 + (v-lo)/(hi-lo)*an;
+  const py = c => y0 + al - c/maxC*al*0.94;
+  const p = [`<svg class="g" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(titulo)}">`];
+  p.push(`<rect x="${x0}" y="${y0}" width="${an}" height="${al}" class="panelfondo"/>`);
+  p.push(`<text x="${x0}" y="${y0-10}" class="tit">${esc(titulo)}</text>`);
+  const bw = an/bins;
+  cuenta.forEach((c, i) => {
+    const bordeLo = lo + (hi-lo)*i/bins;
+    const y = py(c);
+    p.push(`<rect x="${(x0+i*bw).toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1,bw-0.8).toFixed(1)}" height="${Math.max(0, py(0)-y).toFixed(1)}" class="${bordeLo>=referencia?"barra-gana":"barra"}"><title>${bordeLo.toFixed(0)}: ${c} sesiones</title></rect>`);
+  });
+  const xr = px(referencia);
+  p.push(`<line x1="${xr.toFixed(1)}" y1="${y0}" x2="${xr.toFixed(1)}" y2="${y0+al}" class="ref"/>`);
+  p.push(`<text x="${xr.toFixed(1)}" y="${y0-10}" text-anchor="middle" class="nota">banca inicial</text>`);
+  [0,0.25,0.5,0.75,1].forEach(f => {
+    const v = lo + (hi-lo)*f;
+    p.push(`<text x="${px(v).toFixed(1)}" y="${y0+al+15}" text-anchor="middle">${Math.round(v).toLocaleString("es-AR")}</text>`);
+  });
+  p.push("</svg>");
+  return p.join("");
+}
+
+/* ------------------------------------------------------------------- fmt */
+const nf = new Intl.NumberFormat("es-AR");
+/** Decimal con coma, como corresponde en espanol. */
+const dec = (v, n) => v.toFixed(n === undefined ? 2 : n).replace(".", ",");
+const fmt = n => nf.format(Math.round(n));
+const pct = (v, dec) => (v >= 0 ? "+" : "") + v.toFixed(dec === undefined ? 2 : dec) + "%";
+const clase = v => v > 0 ? "bien" : "mal";
+function fmtP(p){
+  if (isNaN(p)) return "—";
+  if (p < 0.0001) return p.toExponential(1).replace("e", "e");
+  return p.toFixed(4);
+}
+function tabla(cabs, filas){
+  return `<div class="tabla-wrap"><table><thead><tr>${
+    cabs.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${
+    filas.map(f => `<tr>${f.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")
+  }</tbody></table></div>`;
+}
+const $ = id => document.getElementById(id);
+
+/* ==========================================================================
+   UI
+   ========================================================================== */
+
+/* ---------- pestanas ---------- */
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll('nav.tabs button').forEach(b =>
+      b.setAttribute("aria-selected", String(b === btn)));
+    document.querySelectorAll("section.panel").forEach(s =>
+      s.classList.toggle("activo", s.id === btn.getAttribute("aria-controls")));
+    window.scrollTo({top:0, behavior:"instant"});
+  });
+});
+
+/* ---------- almacenamiento ----------
+   Todas las mesas viven en el DOM, dentro de la region <artifact-sync>: ese
+   texto es el documento que la plataforma guarda y sincroniza entre
+   dispositivos. Como respaldo, cuando el navegador lo permite, se copia
+   tambien a localStorage (util al abrir el archivo suelto). */
+const CLAVE = "azarium.mesas.v3";
+let hayStorage = true;
+try {
+  localStorage.setItem("azarium.test", "1");
+  localStorage.removeItem("azarium.test");
+} catch (e){ hayStorage = false; }
+
+const nodoDoc = () => $("doc-tiradas");
+
+/* Estado en memoria: {activa: id, mesas: [{id,nombre,rueda,desc,tiradas[]}]} */
+const banco = {activa:null, mesas:[]};
+
+function mesaActiva(){
+  return banco.mesas.find(m => m.id === banco.activa) || banco.mesas[0] || null;
+}
+function nuevoId(){
+  return "m" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36);
+}
+
+function serializar(){
+  return JSON.stringify({
+    v:3, activa: banco.activa,
+    mesas: banco.mesas.map(m => ({
+      id:m.id, nombre:m.nombre, rueda:m.rueda, desc:m.desc || "",
+      tiradas: m.tiradas.join(","),      // compacto: pesa mucho menos que un array
+    })),
+  });
+}
+
+function deserializar(txt){
+  if (!txt || !txt.trim()) return null;
+  const crudo = txt.trim();
+  try {
+    const d = JSON.parse(crudo);
+    if (d && Array.isArray(d.mesas)){
+      return {
+        activa: d.activa,
+        mesas: d.mesas.map(m => ({
+          id: m.id || nuevoId(),
+          nombre: m.nombre || "Mesa",
+          rueda: RUEDAS[m.rueda] ? m.rueda : "europea",
+          desc: m.desc || "",
+          tiradas: typeof m.tiradas === "string"
+            ? m.tiradas.split(",").map(x => x.trim()).filter(Boolean)
+            : (Array.isArray(m.tiradas) ? m.tiradas : []),
+        })),
+      };
+    }
+  } catch (e){ /* no es JSON: puede ser el formato viejo */ }
+  // Migracion del formato v2: el texto era la lista de tiradas suelta.
+  const el = nodoDoc();
+  const tiradas = crudo.split(",").map(x => x.trim()).filter(Boolean);
+  if (!tiradas.length) return null;
+  const id = nuevoId();
+  return {activa:id, mesas:[{
+    id, nombre: (el && el.dataset.nombre) || "Mesa 1",
+    rueda: (el && RUEDAS[el.dataset.rueda]) ? el.dataset.rueda : "europea",
+    desc: "", tiradas,
+  }]};
+}
+
+let escribiendo = false;
+function persistir(){
+  const el = nodoDoc();
+  if (el){
+    escribiendo = true;                 // evita reentrar por el observer
+    el.textContent = serializar();
+    escribiendo = false;
+  }
+  if (hayStorage){
+    try { localStorage.setItem(CLAVE, serializar()); }
+    catch (e){ hayStorage = false; }
+  }
+}
+
+function aplicar(datos){
+  if (!datos) return false;
+  banco.mesas = datos.mesas;
+  banco.activa = datos.activa && datos.mesas.some(m => m.id === datos.activa)
+    ? datos.activa : (datos.mesas[0] ? datos.mesas[0].id : null);
+  return true;
+}
+
+/* ---------- CRUD de mesas ---------- */
+function crearMesa(nombre, rueda, desc){
+  const m = {id:nuevoId(), nombre:nombre, rueda:rueda, desc:desc || "", tiradas:[]};
+  banco.mesas.push(m);
+  banco.activa = m.id;
+  persistir();
+  return m;
+}
+function eliminarMesa(id){
+  banco.mesas = banco.mesas.filter(m => m.id !== id);
+  if (banco.activa === id) banco.activa = banco.mesas[0] ? banco.mesas[0].id : null;
+  persistir();
+}
+
+function dibujarMesa(){
+  const m = mesaActiva();
+  if (!m){ $("mesa").innerHTML = ""; return; }
+  const rueda = RUEDAS[m.rueda];
+  const doble = m.rueda === "americana";
+  const cont = $("mesa");
+  const partes = [];
+  // Columna del cero: en la americana se parte en dos mitades iguales (0 y 00).
+  const ceros = doble ? ["0", "00"] : ["0"];
+  partes.push('<div class="ceros">' + ceros.map(c =>
+    `<button class="cel verde" data-c="${c}" aria-label="${c === "00" ? "doble cero" : "cero"}">${c}</button>`
+  ).join("") + '</div>');
+  // La mesa se lee por filas: 3,6,9... / 2,5,8... / 1,4,7...
+  for (let fila = 0; fila < 3; fila++){
+    for (let col = 0; col < 12; col++){
+      const num = col*3 + (3-fila);
+      partes.push(`<button class="cel ${colorCasilla(String(num))}" data-c="${num}" style="grid-column:${col+2};grid-row:${fila+1}">${num}</button>`);
+    }
+  }
+  cont.innerHTML = partes.join("");
+  cont.querySelectorAll("button.cel").forEach(b =>
+    b.addEventListener("click", () => agregarTirada(b.dataset.c)));
+}
+
+function agregarTirada(c){
+  const m = mesaActiva();
+  if (!m) return;
+  m.tiradas.push(c);
+  persistir();
+  renderMesa();
+}
+
+function renderMesa(){
+  const m = mesaActiva();
+  refrescarSelector();
+  if (!m){
+    $("mesa-ficha").innerHTML = `<div class="aviso-caja">Todavía no tenés ninguna mesa.
+      Creá una en <strong>Mis mesas</strong> para empezar a registrar.</div>`;
+    $("tiradas").innerHTML = '<span class="vacio">—</span>';
+    $("conteo-tiradas").textContent = "";
+    ["mesa-veredicto","mesa-grafico","mesa-tablas","ev-hitos"].forEach(id => $(id).innerHTML = "");
+    $("ev-cifra").textContent = "—"; $("ev-n").textContent = "";
+    $("ev-texto").textContent = "Creá una mesa para empezar.";
+    $("ev-barra").style.width = "0%";
+    return;
+  }
+  const rueda = RUEDAS[m.rueda];
+  $("mesa-ficha").innerHTML =
+    `<div class="ficha-mesa"><span class="et-rueda">${esc(rueda.nombre)}</span>` +
+    (m.desc ? `<span class="desc">${esc(m.desc)}</span>` : "") + `</div>`;
+  const t = m.tiradas;
+  $("conteo-tiradas").textContent = t.length ? `· ${fmt(t.length)} en total` : "";
+
+  // tira de ultimas tiradas (mas recientes primero)
+  const ultimas = t.slice(-40).reverse();
+  $("tiradas").innerHTML = ultimas.length
+    ? ultimas.map(c => `<span class="ficha ${colorCasilla(c)}">${esc(c)}</span>`).join("")
+    : '<span class="vacio">Todavía no cargaste ninguna tirada.</span>';
+
+  renderEvidencia(t.length, rueda);
+
+  if (!t.length){
+    $("mesa-veredicto").innerHTML = "";
+    $("mesa-grafico").innerHTML = "";
+    $("mesa-tablas").innerHTML = "";
+    return;
+  }
+
+  const a = analizarMesa(t, rueda);
+  renderVeredictoMesa(a, rueda);
+
+  $("mesa-grafico").innerHTML = "<h3>Frecuencia por casilla</h3>" +
+    graficoBarras(a.obs, rueda.casillas, a.esp, a.sigma,
+      "Apariciones por casilla, en el orden físico del disco",
+      "el eje sigue el orden real de la rueda, no el numérico: un defecto mecánico afecta casillas vecinas en el disco");
+
+  let html = "";
+  const top = [...a.casillas].sort((x,y) => y.obs - x.obs).slice(0, 8);
+  html += "<h3>Casillas más frecuentes</h3>" + tabla(
+    ["Casilla","Salió","Esperado","Desvío z","p","¿Significativo?"],
+    top.map(c => [esc(c.casilla), fmt(c.obs), a.esp.toFixed(1),
+      (c.z>=0?"+":"")+c.z.toFixed(2), fmtP(c.p),
+      `<span class="${c.sig?"mal":"bien"}">${c.sig?"sí":"no"}</span>`]));
+
+  if (a.sectores.length){
+    html += "<h3>Sectores físicos con exceso</h3>" + tabla(
+      ["Centro","Casillas del sector","Salió","Esperado","z"],
+      a.sectores.slice(0,6).map(s => [esc(s.centro), esc(s.casillas.join(" ")),
+        fmt(s.obs), s.esp.toFixed(1), (s.z>=0?"+":"")+s.z.toFixed(2)]));
+  }
+  $("mesa-tablas").innerHTML = html;
+}
+
+/**
+ * Bloque de evidencia. En vez de medir el progreso hacia una meta inalcanzable
+ * (el sesgo marginal rentable exige cientos de miles de tiradas), muestra el
+ * calculo invertido: con las tiradas que ya hay, que tamano de sesgo se podria
+ * detectar. Esa cifra si se mueve desde la primera decena de tiradas.
+ */
+const HITOS = [200, 1000, 5000, 25000];
+
+function describirMultiplo(m){
+  if (m >= 8)   return "un defecto grosero, del tipo que solo se ve en una rueda rota";
+  if (m >= 4)   return "un defecto muy grande, raro incluso en ruedas viejas";
+  if (m >= 2)   return "un defecto grande, del orden del que explotaron los cazadores de sesgo";
+  if (m >= 1.4) return "un defecto moderado, ya en el rango de lo que existe de verdad";
+  if (m >= 1.1) return "un defecto sutil, cerca de lo que hoy se considera detectable";
+  return "un sesgo minimo, en el limite de lo que seria rentable";
+}
+
+function renderEvidencia(n, rueda){
+  const rentable = 1 / 36, p0 = 1 / rueda.casillas.length;
+  const multRentable = rentable / p0;
+  const det = sesgoDetectable(n, rueda);
+  $("ev-n").textContent = n ? `· ${fmt(n)} tirada${n === 1 ? "" : "s"}` : "";
+
+  const barra = $("ev-barra");
+  if (!det){
+    $("ev-cifra").textContent = "—";
+    barra.style.width = "0%";
+    barra.classList.remove("lleno");
+    $("ev-texto").textContent = n
+      ? `Con ${fmt(n)} tirada${n === 1 ? "" : "s"} todavía no se podría detectar ni un defecto grosero. Seguí cargando.`
+      : "Tocá los números de la mesa para empezar a registrar.";
+  } else {
+    const m = det.multiplo;
+    $("ev-cifra").textContent = dec(m, m < 10 ? 2 : 0) + "×";
+    // Escala logaritmica entre un sesgo grosero (25x) y el marginal rentable.
+    const prog = (Math.log(25) - Math.log(m)) / (Math.log(25) - Math.log(multRentable));
+    barra.style.width = (Math.max(0, Math.min(1, prog)) * 100).toFixed(1) + "%";
+    barra.classList.toggle("lleno", m <= multRentable);
+    $("ev-texto").innerHTML = m <= multRentable
+      ? `Con ${fmt(n)} tiradas ya podrías detectar hasta el sesgo más chico que sería rentable. Es todo lo que la estadística puede darte acá.`
+      : `Con ${fmt(n)} tiradas solo detectarías una casilla que salga <strong>${dec(m)} veces</strong>
+         más seguido de lo normal — ${describirMultiplo(m)}. Para que apostarle sea rentable
+         alcanza con ${dec(multRentable, 3)}×, y eso exige ${fmt(tiradasNecesarias(rueda))} tiradas.`;
+  }
+
+  // Hitos alcanzables: que se podria detectar en cada escalon de muestra.
+  const hitos = HITOS.map(h => {
+    const d = sesgoDetectable(h, rueda);
+    return {n:h, txt: d ? dec(d.multiplo) + "×" : "nada", aqui: n >= h};
+  });
+  $("ev-hitos").innerHTML = '<div class="hitos">' + hitos.map(h =>
+    `<div class="h${h.aqui ? " aqui" : ""}"><b>${h.txt}</b><span>con ${fmt(h.n)} tiradas</span></div>`
+  ).join("") + "</div>";
+}
+
+function renderVeredictoMesa(a, rueda){
+  const n = a.n;
+  let html = "";
+
+  // El chi-cuadrado global
+  const sig = a.pChi2 < 0.05;
+  const espPorCasilla = a.esp;
+  let claseV = sig ? "malo" : "";
+  let cuerpo;
+  if (espPorCasilla < 5){
+    claseV = "";
+    cuerpo = `<p>Con ${fmt(n)} tiradas hay apenas ${espPorCasilla.toFixed(1)} esperadas por
+      casilla. Todavía no alcanza para que el test tenga sentido: hacen falta al menos
+      ${fmt(rueda.casillas.length*5)} tiradas para que el chi-cuadrado sea fiable.</p>`;
+  } else if (sig){
+    cuerpo = `<p>χ² = ${a.chi2.toFixed(1)} con ${rueda.casillas.length-1} grados de
+      libertad, p = ${fmtP(a.pChi2)}. La distribución observada se aparta de la uniforme
+      más de lo que el azar explicaría. Vale la pena seguir registrando.</p>`;
+  } else {
+    cuerpo = `<p>χ² = ${a.chi2.toFixed(1)} con ${rueda.casillas.length-1} grados de
+      libertad, p = ${fmtP(a.pChi2)}. La rueda es indistinguible de una perfectamente
+      equilibrada.</p>`;
+  }
+  html += `<div class="veredicto ${claseV}"><span class="et">Chi-cuadrado de la rueda</span>${cuerpo}</div>`;
+
+  // Explotabilidad: el unico veredicto que importa para apostar
+  if (a.explotables.length){
+    const filas = a.explotables.map(c =>
+      `<p><strong>Casilla ${esc(c.casilla)}</strong>: salió el ${(c.frec*100).toFixed(3)}%
+       de las veces (IC 95%: ${(c.lo*100).toFixed(3)}–${(c.hi*100).toFixed(3)}%).
+       Ventaja estimada del jugador: <span class="bien">${pct(c.ventaja)}</span>.</p>`).join("");
+    html += `<div class="veredicto bueno"><span class="et">Sesgo explotable detectado</span>
+      ${filas}<p class="nota">El límite inferior del intervalo supera 1/36, que es el
+      umbral en el que apostar a pleno deja de tener esperanza negativa. Antes de actuar:
+      confirmá que todas estas tiradas son de la misma rueda física.</p></div>`;
+  } else if (espPorCasilla >= 5){
+    const mejor = [...a.casillas].sort((x,y) => y.frec - x.frec)[0];
+    html += `<div class="veredicto"><span class="et">¿Hay algo para explotar?</span>
+      <p>No. Ninguna casilla supera el umbral de 1/36 = 2,778% con el límite inferior de
+      su intervalo de confianza, que es lo que haría rentable apostarle a pleno.</p>
+      <p class="nota">La más frecuente hasta ahora es la <strong>${esc(mejor.casilla)}</strong>
+      (${(mejor.frec*100).toFixed(2)}%, IC 95%: ${(mejor.lo*100).toFixed(2)}–${(mejor.hi*100).toFixed(2)}%).
+      Su intervalo todavía incluye el ${(100/rueda.casillas.length).toFixed(2)}% teórico,
+      así que la diferencia es compatible con azar puro.</p></div>`;
+  }
+
+  // Advertencia permanente contra la falacia del jugador
+  html += `<div class="aviso-caja"><strong>Lo que este registro no hace:</strong> predecir
+    la próxima tirada. Las tiradas pasadas no cambian la probabilidad de la siguiente —
+    la rueda no tiene memoria. Lo único que un historial puede revelar es un defecto
+    físico permanente de <em>esta</em> rueda, y para eso hacen falta las decenas de miles
+    de tiradas que marca la barra de arriba.</div>`;
+
+  $("mesa-veredicto").innerHTML = html;
+}
+
+/* ---------- eventos de la mesa en vivo ---------- */
+function refrescarSelector(){
+  const sel = $("mesa-sel");
+  if (!banco.mesas.length){
+    sel.innerHTML = '<option value="">— sin mesas —</option>';
+    return;
+  }
+  sel.innerHTML = banco.mesas.map(m =>
+    `<option value="${esc(m.id)}"${m.id === banco.activa ? " selected" : ""}>` +
+    `${esc(m.nombre)} · ${esc(RUEDAS[m.rueda].nombre.split(" (")[0])} · ${fmt(m.tiradas.length)} tiradas</option>`
+  ).join("");
+}
+
+$("mesa-sel").addEventListener("change", e => {
+  if (!e.target.value) return;
+  banco.activa = e.target.value;
+  persistir();
+  dibujarMesa();
+  renderMesa();
+});
+$("btn-ir-config").addEventListener("click", () => $("tab-mesas").click());
+
+$("btn-deshacer").addEventListener("click", () => {
+  const m = mesaActiva();
+  if (!m || !m.tiradas.length) return;
+  m.tiradas.pop(); persistir(); renderMesa();
+});
+
+/**
+ * Confirmacion en dos toques sobre el propio boton.
+ * No se usa confirm(): los artifacts corren en un iframe sin allow-modals, y ahi
+ * el navegador devuelve false sin mostrar nada, asi que la accion nunca ocurre.
+ */
+function pedirConfirmacion(boton, textoConfirmar, alConfirmar){
+  const original = boton.textContent;
+  let armado = false, timer = null;
+  const desarmar = () => {
+    armado = false; boton.textContent = original;
+    boton.classList.remove("peligro");
+    clearTimeout(timer);
+  };
+  boton.addEventListener("click", () => {
+    if (armado){ desarmar(); alConfirmar(); return; }
+    armado = true;
+    boton.textContent = textoConfirmar;
+    boton.classList.add("peligro");
+    timer = setTimeout(desarmar, 4000);
+  });
+}
+
+pedirConfirmacion($("btn-borrar"), "¿Borrar todo?", () => {
+  const m = mesaActiva();
+  if (!m) return;
+  const n = m.tiradas.length;
+  if (!n){ $("io-estado").textContent = "No hay tiradas para borrar."; return; }
+  m.tiradas = [];
+  persistir(); renderMesa();
+  $("io-estado").textContent = `Se borraron ${n} tirada${n === 1 ? "" : "s"} de ${m.nombre}.`;
+});
+
+$("btn-exportar").addEventListener("click", () => {
+  const m = mesaActiva();
+  if (!m) return;
+  $("io-texto").value = m.tiradas.join(", ");
+  $("io-texto").closest("details").open = true;
+  $("io-estado").textContent = `${m.tiradas.length} tiradas de ${m.nombre} listas para copiar.`;
+  $("io-texto").scrollIntoView({block:"center", behavior:"smooth"});
+});
+$("btn-importar").addEventListener("click", () => {
+  $("io-texto").closest("details").open = true;
+  $("io-texto").focus();
+  $("io-texto").scrollIntoView({block:"center", behavior:"smooth"});
+});
+$("btn-io-cargar").addEventListener("click", () => {
+  const m = mesaActiva();
+  if (!m){ $("io-estado").textContent = "Primero creá una mesa."; return; }
+  const crudo = $("io-texto").value.trim();
+  if (!crudo){ $("io-estado").textContent = "No pegaste nada."; return; }
+  const validas = new Set(RUEDAS[m.rueda].casillas);
+  const piezas = crudo.split(/[\s,;]+/).filter(Boolean);
+  const buenas = [], malas = [];
+  piezas.forEach(x => {
+    const limpio = x === "00" ? "00" : String(parseInt(x, 10));
+    if (validas.has(limpio)) buenas.push(limpio); else malas.push(x);
+  });
+  if (!buenas.length){
+    $("io-estado").textContent = "Ningún valor válido para el tipo de rueda de esta mesa.";
+    return;
+  }
+  m.tiradas = m.tiradas.concat(buenas);
+  persistir(); renderMesa();
+  $("io-estado").textContent = `Se agregaron ${buenas.length} tiradas a ${m.nombre}.` +
+    (malas.length ? ` Se ignoraron ${malas.length} valores inválidos.` : "");
+});
+$("btn-io-descargar").addEventListener("click", async () => {
+  const m = mesaActiva();
+  if (!m) return;
+  const csv = "tirada\n" + m.tiradas.join("\n") + "\n";
+  const nombre = m.nombre.replace(/[^\w\-]+/g, "_") + ".csv";
+  const dl = window.claude && claude.use ? await claude.use("downloads") : null;
+  if (dl){
+    try {
+      await dl.save({filename:nombre, data:csv});
+      $("io-estado").textContent = "Archivo ofrecido para guardar.";
+    } catch (e){
+      $("io-estado").textContent = "No se pudo guardar el archivo. Copiá el texto de arriba.";
+    }
+  } else {
+    $("io-texto").value = csv;
+    $("io-estado").textContent = "La descarga no está disponible acá: copiá el texto de arriba.";
+  }
+});
+
+/* ---------- configuracion de mesas ---------- */
+let editandoId = null;
+
+function limpiarFormulario(){
+  editandoId = null;
+  $("f-nombre").value = ""; $("f-desc").value = ""; $("f-rueda").value = "europea";
+  $("f-rueda").disabled = false;
+  $("btn-guardar-mesa").textContent = "Agregar mesa";
+  $("btn-cancelar-mesa").hidden = true;
+}
+
+$("btn-guardar-mesa").addEventListener("click", () => {
+  const nombre = $("f-nombre").value.trim();
+  if (!nombre){
+    $("mesas-estado").innerHTML = '<span class="mal">Poné un nombre para la mesa.</span>';
+    $("f-nombre").focus();
+    return;
+  }
+  const rueda = $("f-rueda").value, desc = $("f-desc").value.trim();
+  if (editandoId){
+    const m = banco.mesas.find(x => x.id === editandoId);
+    if (m){
+      m.nombre = nombre; m.desc = desc;
+      // La rueda solo se cambia si la mesa todavia no tiene tiradas cargadas.
+      if (!m.tiradas.length) m.rueda = rueda;
+      persistir();
+      $("mesas-estado").textContent = `Se guardó ${m.nombre}.`;
+    }
+  } else {
+    const m = crearMesa(nombre, rueda, desc);
+    $("mesas-estado").textContent = `Se creó ${m.nombre} y quedó como mesa activa.`;
+  }
+  limpiarFormulario();
+  renderListaMesas();
+  renderEstadoGuardado();
+  dibujarMesa();
+  renderMesa();
+});
+$("btn-cancelar-mesa").addEventListener("click", limpiarFormulario);
+
+function renderListaMesas(){
+  const cont = $("lista-mesas");
+  if (!banco.mesas.length){
+    cont.innerHTML = `<p class="nota">Todavía no cargaste ninguna mesa. Poné un nombre
+      arriba y tocá <strong>Agregar mesa</strong>.</p>`;
+    return;
+  }
+  cont.innerHTML = banco.mesas.map(m => {
+    const r = RUEDAS[m.rueda];
+    const activa = m.id === banco.activa;
+    return `<div class="tarjeta-mesa${activa ? " activa" : ""}">
+      <div class="tm-cab">
+        <span class="tm-nombre">${esc(m.nombre)}</span>
+        ${activa ? '<span class="tm-badge">en uso</span>' : ""}
+      </div>
+      <div class="tm-meta">${esc(r.nombre)} · ${fmt(m.tiradas.length)} tirada${m.tiradas.length === 1 ? "" : "s"}</div>
+      ${m.desc ? `<div class="tm-desc">${esc(m.desc)}</div>` : ""}
+      <div class="tm-acciones">
+        ${activa ? "" : `<button class="chip" data-act="usar" data-id="${esc(m.id)}">Usar esta</button>`}
+        <button class="chip" data-act="editar" data-id="${esc(m.id)}">Editar</button>
+        <button class="chip" data-act="borrar" data-id="${esc(m.id)}">Eliminar</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  cont.querySelectorAll("button[data-act]").forEach(b => {
+    const id = b.dataset.id;
+    if (b.dataset.act === "usar"){
+      b.addEventListener("click", () => {
+        banco.activa = id; persistir(); renderListaMesas();
+        dibujarMesa(); renderMesa();
+        $("mesas-estado").textContent = `Ahora estás registrando en ${mesaActiva().nombre}.`;
+      });
+    } else if (b.dataset.act === "editar"){
+      b.addEventListener("click", () => {
+        const m = banco.mesas.find(x => x.id === id);
+        if (!m) return;
+        editandoId = id;
+        $("f-nombre").value = m.nombre;
+        $("f-desc").value = m.desc || "";
+        $("f-rueda").value = m.rueda;
+        // Cambiar la rueda invalidaria las tiradas ya cargadas.
+        $("f-rueda").disabled = m.tiradas.length > 0;
+        $("btn-guardar-mesa").textContent = "Guardar cambios";
+        $("btn-cancelar-mesa").hidden = false;
+        $("mesas-estado").innerHTML = m.tiradas.length
+          ? `Editando <strong>${esc(m.nombre)}</strong>. El tipo de rueda no se puede cambiar porque ya tiene ${fmt(m.tiradas.length)} tiradas cargadas.`
+          : `Editando <strong>${esc(m.nombre)}</strong>.`;
+        $("f-nombre").focus();
+        $("form-mesa").scrollIntoView({block:"center", behavior:"smooth"});
+      });
+    } else {
+      const m = banco.mesas.find(x => x.id === id);
+      pedirConfirmacion(b, "¿Eliminar?", () => {
+        const nom = m ? m.nombre : "la mesa";
+        const n = m ? m.tiradas.length : 0;
+        eliminarMesa(id);
+        if (editandoId === id) limpiarFormulario();
+        renderListaMesas(); dibujarMesa(); renderMesa();
+        $("mesas-estado").textContent = `Se eliminó ${nom}` +
+          (n ? ` con sus ${fmt(n)} tiradas.` : ".");
+      });
+    }
+  });
+}
+
+/* ---------- estado de guardado y respaldo ---------- */
+let modoGuardado = "ninguno";   // "cuenta" | "navegador" | "ninguno"
+
+function renderEstadoGuardado(){
+  const cont = $("estado-guardado");
+  if (!cont) return;
+  const total = banco.mesas.reduce((a, m) => a + m.tiradas.length, 0);
+  const resumen = `${banco.mesas.length} mesa${banco.mesas.length === 1 ? "" : "s"}, ` +
+                  `${fmt(total)} tirada${total === 1 ? "" : "s"} en total.`;
+  if (modoGuardado === "cuenta"){
+    cont.innerHTML = `<div class="veredicto bueno"><span class="et">Guardado en tu cuenta</span>
+      <p>Tus mesas se guardan asociadas a tu cuenta de Claude y se sincronizan solas: si
+      abrís esta misma app desde el celular, aparecen ahí. ${resumen}</p>
+      <p class="nota">Solo vos ves este contenido, salvo que compartas la página a mano.</p></div>`;
+  } else if (modoGuardado === "navegador"){
+    cont.innerHTML = `<div class="veredicto"><span class="et">Guardado en este navegador</span>
+      <p>Estás usando la app como archivo local, así que las mesas quedan guardadas en
+      <em>este</em> navegador y no viajan a otro dispositivo. ${resumen}</p>
+      <p class="nota">Si borrás los datos de navegación, se pierden. Descargá un respaldo
+      cada tanto.</p></div>`;
+  } else {
+    cont.innerHTML = `<div class="veredicto malo"><span class="et">Sin guardado automático</span>
+      <p>Este navegador no permite guardar datos acá, así que las mesas se pierden al
+      recargar. ${resumen}</p>
+      <p class="nota">Usá el respaldo de abajo antes de cerrar la página.</p></div>`;
+  }
+}
+
+function textoRespaldo(){
+  return JSON.stringify({app:"azarium", v:3, mesas: banco.mesas}, null, 1);
+}
+
+$("btn-respaldo-ver").addEventListener("click", () => {
+  $("respaldo-texto").value = textoRespaldo();
+  $("respaldo-estado").textContent = "Copiá todo el texto y guardalo donde quieras.";
+});
+
+$("btn-respaldo-bajar").addEventListener("click", async () => {
+  const dl = window.claude && claude.use ? await claude.use("downloads") : null;
+  const datos = textoRespaldo();
+  if (dl){
+    try {
+      await dl.save({filename:"azarium-respaldo.json", data:datos});
+      $("respaldo-estado").textContent = "Archivo ofrecido para guardar.";
+      return;
+    } catch (e){ /* el visor puede rechazarlo: caemos al texto */ }
+  }
+  $("respaldo-texto").value = datos;
+  $("respaldo-estado").textContent = "No se pudo descargar acá: copiá el texto de arriba.";
+});
+
+$("btn-respaldo-restaurar").addEventListener("click", () => {
+  const crudo = $("respaldo-texto").value.trim();
+  if (!crudo){ $("respaldo-estado").textContent = "Pegá primero un respaldo."; return; }
+  let d;
+  try { d = JSON.parse(crudo); }
+  catch (e){
+    $("respaldo-estado").innerHTML = '<span class="mal">Eso no es un respaldo válido.</span>';
+    return;
+  }
+  if (!d || !Array.isArray(d.mesas)){
+    $("respaldo-estado").innerHTML = '<span class="mal">El respaldo no tiene mesas adentro.</span>';
+    return;
+  }
+  // Se agregan a lo que ya hay, con id nuevo, para no pisar nada existente.
+  const antes = banco.mesas.length;
+  d.mesas.forEach(m => {
+    banco.mesas.push({
+      id: nuevoId(),
+      nombre: (m.nombre || "Mesa restaurada"),
+      rueda: RUEDAS[m.rueda] ? m.rueda : "europea",
+      desc: m.desc || "",
+      tiradas: typeof m.tiradas === "string"
+        ? m.tiradas.split(",").map(x => x.trim()).filter(Boolean)
+        : (Array.isArray(m.tiradas) ? m.tiradas : []),
+    });
+  });
+  if (!banco.activa && banco.mesas.length) banco.activa = banco.mesas[0].id;
+  persistir();
+  renderListaMesas(); renderEstadoGuardado(); dibujarMesa(); renderMesa();
+  $("respaldo-texto").value = "";
+  const nuevas = banco.mesas.length - antes;
+  $("respaldo-estado").textContent =
+    `Se restauró ${nuevas} mesa${nuevas === 1 ? "" : "s"}. Las que ya tenías siguen intactas.`;
+});
+
+/* ---------- simulador ---------- */
+function llenarApuestas(){
+  const rueda = RUEDAS[$("s-rueda").value], cat = catalogo(rueda);
+  const sel = $("s-apuesta"), previo = sel.value;
+  sel.innerHTML = Object.keys(cat).map(k =>
+    `<option value="${k}">${esc(cat[k].nombre)}</option>`).join("");
+  if (previo && cat[previo]) sel.value = previo;
+}
+$("s-rueda").addEventListener("change", llenarApuestas);
+llenarApuestas();
+
+$("btn-simular").addEventListener("click", () => {
+  const rueda = RUEDAS[$("s-rueda").value];
+  const cat = catalogo(rueda);
+  const cfg = {
+    rueda,
+    apuesta: cat[$("s-apuesta").value],
+    banca: +$("s-banca").value,
+    base: +$("s-base").value,
+    tiradas: Math.min(5000, +$("s-tiradas").value),
+    sesiones: Math.min(20000, +$("s-sesiones").value),
+    limite: +$("s-limite").value,
+    semilla: 12345,
+  };
+  if (!(cfg.banca > 0 && cfg.base > 0)){
+    $("sim-progreso").textContent = "Revisá la banca y la apuesta base."; return;
+  }
+  $("btn-simular").disabled = true;
+  $("sim-salida").innerHTML = "";
+  const resultados = [];
+  let i = 0;
+  const paso = () => {
+    if (i >= SISTEMAS.length){
+      $("btn-simular").disabled = false;
+      $("sim-progreso").textContent = "";
+      renderSimulacion(resultados, cfg);
+      return;
+    }
+    $("sim-progreso").textContent = `Simulando ${SISTEMAS[i].nombre}… (${i+1}/${SISTEMAS.length})`;
+    setTimeout(() => {
+      resultados.push(simularSistema(SISTEMAS[i], cfg));
+      i++; paso();
+    }, 0);
+  };
+  paso();
+});
+
+function renderSimulacion(res, cfg){
+  const ev = esperanza(cfg.apuesta, cfg.rueda);
+  const ventaja = -ev.valor*100;
+  let html = `<div class="veredicto malo"><span class="et">El resultado central</span>
+    <p>La columna <strong>retorno sobre lo apostado</strong> es el resultado neto dividido
+    por todo el dinero que pasó por la mesa. Converge a <strong>−${ventaja.toFixed(2)}%</strong>
+    en los ocho sistemas, porque es lo único que la matemática fija: la esperanza de una
+    suma de apuestas es la suma de las esperanzas, y cada apuesta ya es negativa.</p>
+    <p class="nota">${esc(cfg.apuesta.nombre)} en ${esc(cfg.rueda.nombre)} · esperanza
+    ${ev.fraccion} por unidad · ${fmt(cfg.sesiones)} sesiones de ${fmt(cfg.tiradas)} tiradas cada una.</p></div>`;
+
+  html += tabla(
+    ["Sistema","Resultado medio","Mediana","Ruina","Termina ganando","Retorno / apostado"],
+    res.map(r => [
+      esc(r.nombre),
+      `<span class="${clase(r.medio)}">${r.medio>=0?"+":""}${fmt(r.medio)}</span>`,
+      `${r.mediana>=0?"+":""}${fmt(r.mediana)}`,
+      `<span class="mal">${(r.probRuina*100).toFixed(1)}%</span>`,
+      `${(r.probGanar*100).toFixed(1)}%`,
+      `<span class="mal">${pct(r.retorno*100)}</span>`,
+    ]));
+
+  const peor = res.reduce((a,b) => b.probRuina > a.probRuina ? b : a);
+  const mejor = res.reduce((a,b) => b.probRuina < a.probRuina ? b : a);
+  const marti = res.find(r => r.nombre === "Martingala");
+  html += `<p>Lo que sí cambian los sistemas es el reparto de las pérdidas.
+    <strong>${esc(peor.nombre)}</strong> arruina la banca en el ${(peor.probRuina*100).toFixed(0)}%
+    de las sesiones; <strong>${esc(mejor.nombre)}</strong>, en el ${(mejor.probRuina*100).toFixed(0)}%.`;
+  if (marti) html += ` La Martingala termina en verde el ${(marti.probGanar*100).toFixed(0)}%
+    de las veces y aun así pierde ${fmt(Math.abs(marti.medio))} en promedio: gana poco y
+    seguido, pierde todo de golpe. Esa asimetría es exactamente lo que la hace sentir un
+    sistema ganador.`;
+  html += "</p>";
+
+  ["Plana","Martingala"].forEach(nom => {
+    const r = res.find(x => x.nombre === nom);
+    if (!r) return;
+    html += `<h3>Distribución de resultados — ${esc(nom)}</h3>` +
+      graficoHistograma(r.finales, cfg.banca, `Banca final tras ${fmt(cfg.tiradas)} tiradas`) +
+      `<p class="nota">Percentiles: ${r.percentiles.map(p => `p${p.p}=${fmt(p.v)}`).join(" · ")}</p>`;
+  });
+  $("sim-salida").innerHTML = html;
+}
+
+/* ---------- sorteos ---------- */
+function analizarHistorico(hist, modalidad){
+  const juego = hist.juego, k = cardinalidad(juego);
+  const nExtr = hist.filas.length * hist.filas[0].length;
+  let html = `<div class="veredicto"><span class="et">Qué se está testeando</span>
+    <p>La hipótesis es que cada sorteo es independiente del anterior y que todos los
+    números son equiprobables. Si se rechaza, hay estructura y podría explotarse.
+    Muestra: <strong>${fmt(hist.filas.length)} sorteos</strong>, ${fmt(nExtr)} números
+    extraídos${hist.fuente ? ` · ${esc(hist.fuente)}` : ""}.</p></div>`;
+
+  const bat = bateriaSorteos(hist);
+  html += tabla(["Test","Estadístico","gl","p-valor","Conclusión"],
+    bat.map(r => [esc(r.nombre),
+      isNaN(r.stat) ? "—" : r.stat.toFixed(2),
+      r.df === null || r.df === undefined ? "—" : String(r.df),
+      fmtP(r.p),
+      isNaN(r.p) ? '<span class="tenue">no aplicable</span>'
+        : `<span class="${r.p<0.05?"mal":"bien"}">${r.p<0.05?"Se rechaza la uniformidad":"Compatible con azar puro"}</span>`]));
+  html += "<p class='nota'>" + bat.map(r => `${esc(r.nombre)}: ${esc(r.detalle)}`).join("<br>") + "</p>";
+
+  const frec = frecuenciasSorteos(hist);
+  const n = frec.reduce((a,b)=>a+b,0), p = 1/k, esp = n*p;
+  const sigma = Math.sqrt(n*p*(1-p));
+  html += "<h3>Frecuencia de cada número</h3>" +
+    graficoBarras(frec, frec.map((_,i) => juego.min+i), esp, sigma,
+      `Apariciones por número — ${juego.nombre}`,
+      "la franja clara es el margen de ±2σ que el azar puro produce");
+
+  const fn = porNumero(hist);
+  const crudos = fn.filter(f => f.crudo).length, conFdr = fn.filter(f => f.fdr).length;
+  html += `<div class="veredicto ${conFdr?"malo":""}"><span class="et">La trampa de los números calientes</span>
+    <p>Mirando cada número por separado, <strong>${crudos}</strong> dan diferencia
+    significativa. Parece un hallazgo. No lo es: al correr ${k} tests simultáneos con
+    umbral 0,05, el azar solo produce ~${(k*0.05).toFixed(0)} positivos falsos.
+    Corrigiendo por multiplicidad quedan <strong>${conFdr}</strong>.</p>
+    <p class="nota">Ese es el error que comete todo sistema que vende números calientes:
+    confunde el ruido de mirar cien cosas a la vez con una señal.</p></div>`;
+
+  const top = [...fn].sort((a,b) => b.obs-a.obs).slice(0,8);
+  html += tabla(["Número","Salió","Esperado","Desvío z","p","¿Significativo?"],
+    top.map(f => [String(f.numero), fmt(f.obs), f.esp.toFixed(1),
+      (f.z>=0?"+":"")+f.z.toFixed(2), fmtP(f.p),
+      `<span class="${f.fdr?"mal":"bien"}">${f.fdr?"sí":"no"}</span>`]));
+
+  // Backtest
+  const calent = Math.min(365, Math.floor(hist.filas.length*0.2));
+  const bt = backtest(hist, calent, modalidad, 7);
+  const teor = esperanzaSorteo(juego, modalidad)*100;
+  html += `<h2>Qué rinde cada estrategia</h2>
+    <p>Cada estrategia elige usando <em>solo</em> los sorteos anteriores y se la evalúa
+    sobre el siguiente. Sin esa regla, cualquier estrategia parece ganadora.
+    Retorno teórico de esta modalidad: <strong>${teor.toFixed(2)}%</strong>.</p>`;
+  if (!bt){
+    html += "<p class='nota'>No hay sorteos suficientes para el backtest.</p>";
+  } else {
+    html += tabla(["Estrategia","Apuestas","Aciertos","Retorno por unidad"],
+      bt.map(r => [esc(r.estrategia), fmt(r.apuestas), fmt(r.aciertos),
+        `<span class="${clase(r.retorno)}">${pct(r.retorno*100)}</span>`]));
+    const alea = bt.find(r => r.estrategia === "Aleatorio");
+    const peorP = Math.min(...bt.filter(r => r !== alea).map(r => difProporciones(r, alea)));
+    html += `<p>Los retornos parecen muy distintos entre sí, pero comparados contra elegir
+      al azar el p-valor más bajo es <strong>${peorP.toFixed(3)}</strong>: ` +
+      (peorP >= 0.05
+        ? "ninguna diferencia supera el ruido muestral. Con pocos miles de apuestas y una probabilidad de acierto tan chica, la dispersión aparente es enorme y no significa nada.</p>"
+        : "hay al menos una diferencia significativa. Conviene revisar el origen de los datos.</p>");
+  }
+  html += `<div class="veredicto malo"><span class="et">Conclusión</span>
+    <p>El retorno esperado está fijado por el pago, no por los números elegidos. La banca
+    se queda con el ${Math.abs(teor).toFixed(0)}% de todo lo apostado, juegues los calientes,
+    los fríos, los atrasados o la fecha de tu cumpleaños.</p></div>`;
+  return html;
+}
+
+function correrSorteos(hist){
+  $("q-progreso").textContent = "Analizando…";
+  $("btn-analizar").disabled = true;
+  setTimeout(() => {
+    try {
+      $("q-salida").innerHTML = analizarHistorico(hist, $("q-modalidad").value);
+    } catch (e){
+      $("q-salida").innerHTML = `<p class="mal">No se pudo analizar: ${esc(e.message)}</p>`;
+    }
+    $("q-progreso").textContent = "";
+    $("btn-analizar").disabled = false;
+  }, 10);
+}
+
+$("btn-analizar").addEventListener("click", () => {
+  const juego = JUEGOS[$("q-juego").value];
+  correrSorteos(generarSorteos(juego, +$("q-sorteos").value, 42));
+});
+$("btn-demo-sesgo").addEventListener("click", () => {
+  const juego = JUEGOS[$("q-juego").value];
+  const objetivo = juego.min + 17;
+  correrSorteos(generarSorteos(juego, +$("q-sorteos").value, 42, {[objetivo]:1.35}));
+});
+
+function parsearSorteos(texto, juego){
+  const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const filas = [];
+  lineas.forEach((l, i) => {
+    let piezas = l.split(/[\s,;]+/).filter(Boolean);
+    // Si el primer campo parece una fecha, se descarta.
+    if (piezas.length && /[\/\-]/.test(piezas[0]) && !/^\-?\d+$/.test(piezas[0]))
+      piezas = piezas.slice(1);
+    const nums = piezas.map(p => parseInt(p, 10)).filter(v => !isNaN(v));
+    if (!nums.length) return;
+    if (i === 0 && /[a-zA-Z]/.test(l)) return;   // cabecera
+    const fuera = nums.filter(v => v < juego.min || v > juego.max);
+    if (fuera.length)
+      throw new Error(`línea ${i+1}: los números ${fuera.join(", ")} están fuera del rango ${juego.min}-${juego.max}`);
+    filas.push(nums);
+  });
+  if (!filas.length) throw new Error("no se encontró ningún sorteo");
+  const ancho = filas[0].length;
+  if (filas.some(f => f.length !== ancho))
+    throw new Error("no todas las líneas tienen la misma cantidad de números");
+  return {juego, filas, fuente:"datos cargados por vos"};
+}
+
+$("btn-q-cargar").addEventListener("click", () => {
+  const juego = JUEGOS[$("q-juego").value];
+  try {
+    const hist = parsearSorteos($("q-texto").value, juego);
+    $("q-estado").textContent = `${hist.filas.length} sorteos leídos, ${hist.filas[0].length} números por sorteo.`;
+    correrSorteos(hist);
+  } catch (e){
+    $("q-estado").innerHTML = `<span class="mal">${esc(e.message)}</span>`;
+  }
+});
+$("btn-q-archivo").addEventListener("click", () => $("q-archivo").click());
+$("q-archivo").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const lector = new FileReader();
+  lector.onload = () => { $("q-texto").value = lector.result; $("btn-q-cargar").click(); };
+  lector.readAsText(f);
+});
+
+/* ---------- referencia ---------- */
+function renderReferencia(){
+  let html = "";
+  const filas = [];
+  Object.keys(RUEDAS).forEach(k => {
+    const r = RUEDAS[k], cat = catalogo(r);
+    ["pleno","rojo","docena1"].forEach(a => {
+      const ap = cat[a], ev = esperanza(ap, r);
+      filas.push([esc(r.nombre), esc(ap.nombre),
+        `<span class="mal">${(-ev.valor*100).toFixed(3)}%</span>`,
+        `<code>${ev.fraccion}</code>`]);
+    });
+  });
+  html += "<h3>Ventaja de la casa por apuesta</h3>" +
+    tabla(["Rueda","Apuesta","Ventaja de la casa","Esperanza por unidad"], filas);
+  html += `<p>En la ruleta europea <em>todas</em> las apuestas tienen la misma esperanza.
+    Cambian la varianza — el pleno paga mucho y casi nunca, el rojo paga poco y seguido —
+    nunca la media. La francesa con <em>partage</em> es la única excepción real: devuelve
+    la mitad de las apuestas de dinero par cuando sale el cero, y eso parte la ventaja al
+    medio.</p>`;
+
+  const juego = JUEGOS.quiniela;
+  html += "<h3>Comparación entre juegos</h3>" +
+    tabla(["Juego","Retorno esperado por peso apostado"], [
+      ["Quiniela a la cabeza", `<span class="mal">${esperanzaSorteo(juego,"cabeza")*100 >= 0 ? "+" : ""}${(esperanzaSorteo(juego,"cabeza")*100).toFixed(2)}%</span>`],
+      ["Quiniela a los 20", `<span class="mal">${(esperanzaSorteo(juego,"a20")*100).toFixed(2)}%</span>`],
+      ["Ruleta americana", `<span class="mal">${(-ventajaCasa(catalogo(RUEDAS.americana).rojo, RUEDAS.americana)).toFixed(2)}%</span>`],
+      ["Ruleta europea", `<span class="mal">${(-ventajaCasa(catalogo(RUEDAS.europea).rojo, RUEDAS.europea)).toFixed(2)}%</span>`],
+      ["Ruleta francesa (dinero par)", `<span class="mal">${(-ventajaCasa(catalogo(RUEDAS.francesa).rojo, RUEDAS.francesa)).toFixed(2)}%</span>`],
+    ]);
+  html += `<p>La ruleta es entre cinco y veinte veces más barata que la quiniela por peso
+    apostado. Eso no la vuelve rentable: la vuelve más lenta.</p>`;
+
+  html += `<h2>La única grieta que existió</h2>
+    <p>Hay casos documentados de gente que le ganó a la ruleta: Joseph Jagger en Montecarlo
+    (1873), Hibbs y Walford en Reno (1947), los Pelayo en los 90. Ninguno usó un sistema de
+    apuestas. Todos hicieron lo mismo: encontrar una rueda físicamente defectuosa y apostar
+    a las casillas que salían de más.</p>`;
+  const euro = RUEDAS.europea, nec = tiradasNecesarias(euro);
+  html += `<div class="veredicto malo"><span class="et">Lo que costaría hoy</span>
+    <p>Para que sea rentable no alcanza con que una casilla “salga más”: como el pleno paga
+    35 a 1, su probabilidad real tiene que superar <strong>1/36 = 2,778%</strong> contra el
+    2,703% teórico. Detectar una diferencia así de chica, con 80% de potencia y corrigiendo
+    por las 37 casillas, exige <strong>${fmt(nec)} tiradas de la misma rueda</strong>:
+    unas ${fmt(nec/40)} horas de mesa continua, ${(nec/40/8/365).toFixed(1)} años observando
+    ocho horas por día. Y eso sólo para <em>saber</em> si el sesgo existe, antes de apostar
+    un peso.</p>
+    <p class="nota">Los casinos modernos balancean y rotan las ruedas precisamente porque
+    esta grieta fue real.</p></div>`;
+
+  html += `<h2>Cómo leer los números</h2>
+    <p><strong>p-valor.</strong> La probabilidad de ver un desvío así de grande si la rueda
+    fuera perfecta. Chico (&lt;0,05) significa que el azar solo difícilmente lo explica.</p>
+    <p><strong>Corrección por multiplicidad.</strong> Si mirás 37 casillas a la vez, unas
+    dos van a dar p&lt;0,05 por puro azar. El método de Benjamini-Hochberg ajusta el umbral
+    para que eso no cuente como hallazgo. Es la diferencia entre un análisis honesto y uno
+    que encuentra patrones en todos lados.</p>
+    <p><strong>Intervalo de confianza.</strong> El rango donde plausiblemente está la
+    probabilidad real. Azarium exige que el límite <em>inferior</em> supere el umbral de
+    rentabilidad antes de decir que algo es explotable: el estimador puntual no alcanza
+    cuando se juega dinero.</p>`;
+  $("ref-salida").innerHTML = html;
+}
+
+/* ---------- arranque ---------- */
+function cargarInicial(){
+  // 1) el documento sincronizado manda
+  const el = nodoDoc();
+  if (el && aplicar(deserializar(el.textContent))) return "doc";
+  // 2) si no, el respaldo local
+  if (hayStorage){
+    try {
+      if (aplicar(deserializar(localStorage.getItem(CLAVE)))){
+        persistir();               // vuelca el respaldo al documento
+        return "local";
+      }
+    } catch (e){ /* respaldo ilegible: se arranca vacio */ }
+  }
+  return "vacio";
+}
+
+(function inicio(){
+  cargarInicial();
+  dibujarMesa();
+  renderMesa();
+  renderListaMesas();
+  renderEstadoGuardado();
+  renderReferencia();
+
+  // Cambios que llegan de otra vista (la misma sesión abierta en otro dispositivo).
+  const el = nodoDoc();
+  if (el && window.MutationObserver){
+    new MutationObserver(() => {
+      if (escribiendo) return;
+      const entrante = deserializar(el.textContent);
+      if (!entrante) return;
+      if (JSON.stringify(entrante) === JSON.stringify(
+            {activa:banco.activa, mesas:banco.mesas})) return;
+      aplicar(entrante);
+      dibujarMesa(); renderMesa(); renderListaMesas();
+    }).observe(el, {childList:true, characterData:true, subtree:true, attributes:true});
+  }
+
+  // Determinar donde se estan guardando realmente los datos.
+  const usar = (window.claude && claude.use)
+    ? claude.use("artifact") : Promise.resolve(null);
+  usar.then(a => {
+    modoGuardado = a ? "cuenta" : (hayStorage ? "navegador" : "ninguno");
+    renderEstadoGuardado();
+    if (modoGuardado === "ninguno")
+      $("io-estado").textContent = "Acá no se pueden guardar datos: las tiradas se pierden " +
+        "al recargar. Descargá un respaldo desde Mis mesas.";
+  }).catch(() => {
+    modoGuardado = hayStorage ? "navegador" : "ninguno";
+    renderEstadoGuardado();
+  });
+})();
+</script>
