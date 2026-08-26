@@ -1,5 +1,7 @@
 # Azarium
 
+> **Estado: Activo** — en uso. Pendiente: backend con login y datos propios.
+
 Laboratorio estadístico de juegos de azar: quiniela, loto y ruleta.
 
 Azarium **no predice resultados y no vende un sistema para ganar**. Hace lo
