@@ -1,4 +1,9 @@
 <title>Azarium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1A1714">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 /* ============================================================
    Azarium - identidad: papel tecnico, azul acero forense,
@@ -2245,4 +2250,10 @@ function cargarInicial(){
     renderEstadoGuardado();
   });
 })();
+</script>
+<script>
+  // Habilita la instalacion en el celular y el uso sin conexion.
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+  }
 </script>
