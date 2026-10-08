@@ -59,6 +59,19 @@ py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" informe
 Estando parado dentro de la carpeta del proyecto también sirve la forma de
 módulo, `py -3 -m azarium.cli <comando>`.
 
+### Tests
+
+El motor tiene tests automáticos con `unittest`, sin nada extra que instalar. Se
+corren desde la carpeta del proyecto:
+
+```bash
+py -3 -m unittest discover -s tests -v
+```
+
+Cubren las distribuciones de `stats.py` contra valores de tabla, las esperanzas
+exactas de las tres ruedas, las progresiones de apuesta, la detección de sesgo, el
+CSV de históricos, la batería de sorteos y que el backtest no mire el futuro.
+
 ## Uso
 
 Todos los comandos generan un informe HTML autocontenido en `informes/`.
