@@ -53,7 +53,7 @@ Se invoca por el lanzador `azarium-cli.py`, que resuelve su propia ubicación y
 funciona desde cualquier consola sin importar en qué carpeta estés parado:
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" informe
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" informe
 ```
 
 Estando parado dentro de la carpeta del proyecto también sirve la forma de
@@ -66,7 +66,7 @@ Todos los comandos generan un informe HTML autocontenido en `informes/`.
 ### Análisis de sorteos
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" sorteos --juego quiniela --csv datos/quiniela.csv
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" sorteos --juego quiniela --csv datos/quiniela.csv
 ```
 
 Sin `--csv` genera un histórico sintético uniforme para que puedas ver el
@@ -85,7 +85,7 @@ Juegos disponibles: `quiniela` (00-99, 20 bolillas), `loto` (00-41, 6),
 ### Simulación de ruleta
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" ruleta --rueda europea --apuesta rojo --banca 1000 --base 10 --tiradas 500 --sesiones 10000
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" ruleta --rueda europea --apuesta rojo --banca 1000 --base 10 --tiradas 500 --sesiones 10000
 ```
 
 Compara ocho sistemas de progresión (plana, Martingala, Gran Martingala,
@@ -95,20 +95,20 @@ condiciones.
 ### Detección de sesgo de rueda
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" sesgo --csv datos/mesa3.csv --rueda europea --mesa "Mesa 3"
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" sesgo --csv datos/mesa3.csv --rueda europea --mesa "Mesa 3"
 ```
 
 El CSV es una tirada por fila (`0`, `00`, `1`..`36`). Para ver cómo se comporta
 con una rueda defectuosa simulada:
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" sesgo --demo-sesgo 17 --tiradas 50000
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" sesgo --demo-sesgo 17 --tiradas 50000
 ```
 
 ### Tabla rápida de ventajas
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" ventajas
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" ventajas
 ```
 
 ## Qué mide cada módulo
@@ -194,7 +194,7 @@ El generador sintético permite verificar que los tests están calibrados:
   lo detecta con p≈4e-5 y el FDR aísla exactamente el número sesgado.
 
 ```bash
-py -3 "W:\Working Folder Personal\Azarium\azarium-cli.py" sesgo --demo-sesgo 17 --tiradas 50000
+py -3 "W:\Working Folder Personal\Apps\Azarium\azarium-cli.py" sesgo --demo-sesgo 17 --tiradas 50000
 ```
 
 ## Sobre datos reales

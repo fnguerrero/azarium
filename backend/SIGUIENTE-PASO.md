@@ -22,7 +22,7 @@ quedarían visibles entre usuarios: no seguir hasta arreglarlo.
 ## 3. Abrir una sesión nueva de Claude Code y pegar esto
 
 ```
-Azarium: conectar el frontend (W:\Working Folder Personal\Azarium\app\azarium.html) a Supabase con login por email y deploy en Vercel. El esquema ya está corrido, está en Azarium\backend\esquema.sql
+Azarium: conectar el frontend (W:\Working Folder Personal\Apps\Azarium\app\azarium.html) a Supabase con login por email y deploy en Vercel. El esquema ya está corrido, está en Azarium\backend\esquema.sql
 ```
 
 ## Datos que hacen falta en esa sesión
